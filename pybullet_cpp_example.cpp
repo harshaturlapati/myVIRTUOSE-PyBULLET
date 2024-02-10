@@ -10,104 +10,154 @@
 #include <myVIRTUOSE_LOGGING.h> // baked in
 
 #include <Windows.h>
+#include <cmath>
+
+int runScripts(char str[])
+{
+    PROCESS_INFORMATION pi;
+    STARTUPINFO si;
+
+    ZeroMemory(&si, sizeof(STARTUPINFO));
+    si.cb = sizeof(STARTUPINFO);
+
+    /*
+    si.cbReserved2 = 0;
+    si.dwFillAttribute = 0;
+    si.dwFlags = 0;
+    si.dwX = 0;
+    si.dwXCountChars = 0;
+    si.dwXSize = 0;
+    si.dwY = 0;
+    si.dwYCountChars = 0;
+    si.dwYSize = 0;
+    si.dwY = 0;
+    si.dwYCountChars = 0;
+    si.hStdError = NULL;
+    si.hStdInput = NULL;
+    si.hStdOutput = NULL;
+    si.lpDesktop = NULL;
+    si.lpReserved = NULL;
+    si.lpReserved2 = NULL;
+    si.lpTitle = NULL;
+    si.wShowWindow = 0;
+    */
+
+    if (CreateProcess("C:\\Windows\\System32\\cmd.exe", (LPSTR)str, NULL, NULL, 0, 0, NULL, NULL, &si, &pi))
+    {
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+        return 1; //success
+    }
+    else
+    {
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+        return 0; //failure
+    }
+}
+
+class myPyBULLET {
+public:
+    float time_step;
+    b3PhysicsClientHandle client;
+    b3RobotSimulatorClientAPI_InternalData data;
+    b3RobotSimulatorClientAPI_NoDirect api;
+
+    void init() {
+        b3PhysicsClientHandle client = b3ConnectSharedMemory(SHARED_MEMORY_KEY);
+        if (!b3CanSubmitCommand(client))
+        {
+            printf("Not connected, start a PyBullet server first, using python -m pybullet_utils.runServer\n");
+            exit(0);
+        }
+        data.m_physicsClientHandle = client;
+        data.m_guiHelper = 0;
+        api.setInternalData(&data);
+        api.setTimeStep(time_step);
+        api.resetSimulation();
+    }
+
+    //int loadURDF(char* str_input) {
+    //    return api.loadURDF(str_input);
+    //}
+
+    //bool applyExternalForce(int cube, int linkIndex, btVector3 force_in, btVector3 position_in, int flag_in){
+    //    return api.applyExternalForce(cube, linkIndex, force_in, position_in, flag_in);
+    //}
+
+    ///*bool getCON(int cube, int linkIndex, btVector3 force_in, btVector3 position_in, int flag_in) {
+    //    
+    //    return api.applyExternalForce(cube, linkIndex, force_in, position_in, flag_in);
+    //}*/
+
+    //void stepSimulation(){
+    //    api.stepSimulation();
+    //}
+
+    myPyBULLET(float time_step_in) {
+        time_step = time_step_in;
+        init();
+    }
+};
 
 int main()
 {
 
-   // system("python -m pybullet_utils.runServer");
-    WinExec("python -m pybullet_utils.runServer", 1);
-    // UDP class object
-    myVIRTUOSE_UDP myUDP(27017, 27018, "127.0.0.1", "127.0.0.1");
-    float input_pos[7] = { 0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,1.0f };
-    myUDP.setup_UDP();
+    //int ret = runScripts("/K python -m pybullet_utils.runServer");
+    //printf("%d\n", ret);
+    //system("python -m pybullet_utils.runServer");
+    //WinExec("python -m pybullet_utils.runServer", 1);
 
-    // Virtuose object attributes
-    const char* myPORT = "127.0.0.1#53210";
-    float myFORCEFACTOR = 1.0f, mySPEEDFACTOR = 1.0f, myDT = 0.001f;
+    b3RobotSimulatorGetContactPointsArgs args;
+    args.m_bodyUniqueIdA = 1;
+    args.m_bodyUniqueIdB = 2;
+    args.m_linkIndexA = -1;
+    args.m_linkIndexB = -1;
 
-    // Virtuose object definition
-    ARM RightARM("127.0.0.1#53210", myFORCEFACTOR, mySPEEDFACTOR, myDT);
-    RightARM.name = "RightARM";
-    RightARM.quick_start();
-    RightARM.debug_getPOS();
+    b3ContactInformation info;
 
-    // Impedance control parameters
-    float k = 0.1f, b = 0.1f;
+    float ms = 1 / 1000;
+    float step_time = 10*ms;
+        myPyBULLET SIM(step_time);
+    
+        int plane = SIM.api.loadURDF("plane.urdf");
+        int cube = SIM.api.loadURDF("cube.urdf");
 
-    // Command structure object
-    CMD cmd_R(k, b);
+        btVector3 position, force;
+        //btQuaternion(const btScalar & _x, const btScalar & _y, const btScalar & _z, const btScalar & _w)
+        btQuaternion orientation(0,0,0,1);
 
-    for (int i = 0; i < 7; i++) {
-        cmd_R.X_d[i] = RightARM.getPOS()[i];
-    }
-
-    int duration = 1000;
-    myVIRTUOSE_LOG RightARM_LOG(duration); // duration input
-
-    myWRITE_VIRT_LOG Right_LOG_writer(duration);
-
+        force[0] = 0;
+        force[1] = 0;
+        force[2] = 0;
+        
+        position[0] = 0;
+        position[1] = 0;
+        position[2] = 0;
+        float force1;
+        
+        std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+        SIM.api.setRealTimeSimulation(0);
     int data_count = 0;
     printf("Press Q to exit loop\n");
     while (!(GetKeyState('Q') & 0x8000))
     {
-        myUDP.UDP_send_recv_v3(RightARM.getPOS());
+        SIM.api.resetBasePositionAndOrientation(1, position, orientation);
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now(); 
+        SIM.api.getContactPoints(args, &info);
+        position[1] = sin(std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count());
+        //td::cout << position[2] << std::endl;
+        //std::cout << &info.m_contactPointData->m_bodyUniqueIdA << std::endl;
 
-        cmd_R.P_trn(cmd_R.X_d, RightARM.X);
+        //force1 = ;
+        std::cout << &info.m_contactPointData->m_normalForce << std::endl;
 
-        RightARM_LOG.write2LOG(data_count, cmd_R.X, cmd_R.f, myUDP.UDP_f);
-
-        // RightARM.sendCMD_f(cmd_R.f); // issues the commanded force and resets the force variable also
-
+       //SIM.api.applyExternalForce(cube, -1, force, position, 0);
+        SIM.api.stepSimulation();
+        Sleep(step_time);
         data_count = data_count + 1;
     }
 
-    Right_LOG_writer.write2FILE(RightARM_LOG);
-
-    myUDP.cleanup();
-    RightARM.quick_stop();
-
-    b3PhysicsClientHandle client = b3ConnectSharedMemory(SHARED_MEMORY_KEY);
-    if (!b3CanSubmitCommand(client))
-    {
-        printf("Not connected, start a PyBullet server first, using python -m pybullet_utils.runServer\n");
-        exit(0);
-    }
-    b3RobotSimulatorClientAPI_InternalData data;
-    data.m_physicsClientHandle = client;
-    data.m_guiHelper = 0;
-    b3RobotSimulatorClientAPI_NoDirect api;
-    api.setInternalData(&data);
-    api.setTimeStep(0.001f);
-    api.resetSimulation();
-
-    //b3RobotSimulatorLoadUrdfFileArgs args = b3RobotSimulatorLoadUrdfFileArgs();
-    //int plane = api.loadURDF("plane.urdf");
-
-
-    btVector3 m_startPosition(0, 0, 1);
-    btQuaternion m_startOrientation(0, 0, 0, 0);
-
-    //args.m_startPosition = m_startPosition;
-    //args.m_startOrientation = m_startOrientation;
-
-   // int ball = api.loadURDF("plane.urdf", b3RobotSimulatorLoadUrdfFileArgs(m_startPosition, m_startOrientation));
-    int plane = api.loadURDF("plane.urdf");
-    int cube = api.loadURDF("cube.urdf");
-    btVector3 position, force;
-    force[0] = 0;
-    force[1] = 0;
-    force[2] = 0.001;
-    position[0] = 0;
-    position[1] = 0;
-    position[2] = 0;
-    int i = 1;
-    
-    while (i < 100){
-        api.applyExternalForce(cube, -1, force, position, 0);
-        api.stepSimulation();
-        Sleep(1);
-        i = i + 1;
-}
-    api.disconnect();
+    SIM.api.disconnect();
     return 0;
 }
