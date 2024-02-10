@@ -13,6 +13,9 @@
 
 int main()
 {
+
+   // system("python -m pybullet_utils.runServer");
+    WinExec("python -m pybullet_utils.runServer", 1);
     // UDP class object
     myVIRTUOSE_UDP myUDP(27017, 27018, "127.0.0.1", "127.0.0.1");
     float input_pos[7] = { 0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,1.0f };
@@ -105,4 +108,6 @@ int main()
         Sleep(1);
         i = i + 1;
 }
+    api.disconnect();
+    return 0;
 }
