@@ -23,6 +23,7 @@ public:
     float cross_v1v2[3];
     float positiononA[3], positiononB[3];
     int N_con;
+    float R_actor[3][3];
 
     void init() {
         b3PhysicsClientHandle client = b3ConnectSharedMemory(SHARED_MEMORY_KEY);
@@ -65,6 +66,10 @@ public:
         cross_v1v2[1] = v2[0] * v1[2] - v1[0] * v2[2];
         cross_v1v2[2] = v1[0] * v2[1] - v2[0] * v1[1];
         std::cout << cross_v1v2[0] << cross_v1v2[1] << cross_v1v2[2] << std::endl;
+    }
+
+    void getROT() {
+        
     }
 
     void evalCON() {
@@ -180,16 +185,12 @@ int main()
 {
     myBULLET SIM(0.01f);
     
-    
-    double f;
-
     printf("Press Q to exit loop\n");
     while (!(GetKeyState('Q') & 0x8000)){
         SIM.evalCON();
         //SIM.api.resetBasePositionAndOrientation(SIM.actor, btVector3(btScalar(0), btScalar(0), btScalar(0.1)), btQuaternion(btScalar(0), btScalar(0), btScalar(0), btScalar(1)));
 
         //SIM.api.applyExternalForce(SIM.actor, -1, btVector3(btScalar(0), btScalar(0), btScalar(-0.1)), btVector3(btScalar(0), btScalar(0), btScalar(0)), 0);
-        
         
         SIM.api.stepSimulation();
         //Sleep(1);
