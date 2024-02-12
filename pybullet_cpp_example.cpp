@@ -26,12 +26,18 @@ public:
     float R_actor[3][3];
     float RT_actor[3][3];
     float minus_RT_actor[3][3];
-    btVector3 pos_actor;
+    btVector3 pos_actor, pdot_actor, omega_actor;
     btQuaternion quat_actor;
     float norm_quat;
     float Ax[3];
     float AB[3][3];
     float p_cross[3][3];
+
+    float k,b;
+    //float K[3][3];
+    float p_cmd[3];
+    float f_cmd[3];
+    
 
     //float quat_actor[4];
     //float pos_actor[3];
@@ -65,6 +71,9 @@ public:
         myC.m_bodyUniqueIdB = world;
         myC.m_linkIndexA = -1;
         myC.m_linkIndexB = -1;
+
+        k = 1;
+        b = 0.5;
     }
 
     void myCROSS(float v1_in[3], float v2_in[3]) {
@@ -100,6 +109,7 @@ public:
 
     void getSE3() {
         api.getBasePositionAndOrientation(actor, pos_actor, quat_actor);
+        api.getBaseVelocity(actor, pdot_actor, omega_actor);
         std::cout << "position - x = " << pos_actor[0] << ", y = " << pos_actor[1] << ", z = " << pos_actor[2] << std::endl;
         float x, y, z, w, a11, a12, a13, a21, a22, a23, a31, a32, a33;
         std::cout << "quaternion - x = " << quat_actor.getX() << ", y = " << quat_actor.getY() << ", z = " << quat_actor.getZ() << ", w = " << quat_actor.getW() << std::endl;
@@ -171,6 +181,11 @@ public:
     }
 
     void evalCON() {
+
+        p_cmd[0] = 0;
+        p_cmd[1] = 0;
+        p_cmd[2] = 1;
+
         api.getContactPoints(myC, &contactInfo);
         N_con = contactInfo.m_numContactPoints;
         std::cout << "number of contacts are : " << N_con << std::endl;
@@ -335,8 +350,11 @@ int main()
     while (!(GetKeyState('Q') & 0x8000)){
         SIM.evalCON();
 
+        printf("works\n");
 
-
+        SIM.f_cmd[0] = SIM.k*(SIM.p_cmd[0] - SIM.pos_actor[0]) - SIM.b*(SIM.pdot_actor[0]);
+        SIM.f_cmd[1] = SIM.k* (SIM.p_cmd[1] - SIM.pos_actor[1]) - SIM.b * (SIM.pdot_actor[1]);
+        SIM.f_cmd[2] = SIM.k* (SIM.p_cmd[2] - SIM.pos_actor[2]) - SIM.b * (SIM.pdot_actor[2]);
 
         //SIM.getSE3();
         /*SIM.api.getBasePositionAndOrientation(SIM.actor, pos, quat);
@@ -346,7 +364,7 @@ int main()
         //SIM.quat_actor;
         //SIM.api.resetBasePositionAndOrientation(SIM.actor, btVector3(btScalar(0), btScalar(0), btScalar(0.1)), btQuaternion(btScalar(0), btScalar(0), btScalar(0), btScalar(1)));
 
-        //SIM.api.applyExternalForce(SIM.actor, -1, btVector3(btScalar(0), btScalar(0), btScalar(-0.1)), btVector3(btScalar(0), btScalar(0), btScalar(0)), 0);
+        SIM.api.applyExternalForce(SIM.actor, -1, btVector3(btScalar(SIM.f_cmd[0]), btScalar(SIM.f_cmd[1]), btScalar(SIM.f_cmd[2])), btVector3(btScalar(0), btScalar(0), btScalar(0)), 0);
         
         SIM.api.stepSimulation();
         //Sleep(1);
