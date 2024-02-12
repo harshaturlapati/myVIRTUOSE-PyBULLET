@@ -7,6 +7,12 @@
 #include <Windows.h>
 #include <iostream>
 
+#include <myINCLUDES.h>         // baked in
+#include "VirtuoseAPI.h"
+#include <myVIRTUOSE_v2.h>         // baked in
+#include <myVIRTUOSE_UDP.h>     // baked in
+#include <myVIRTUOSE_LOGGING.h> // baked in
+
 class myBULLET {
 public:
     float time_step;
@@ -63,7 +69,7 @@ public:
         //btQuaternion
 
         api.resetBasePositionAndOrientation(actor, btVector3(btScalar(0), btScalar(0), btScalar(1)), btQuaternion(btScalar(0), btScalar(0), btScalar(0), btScalar(1)));
-        dyn_args.m_mass = 0.01;
+        dyn_args.m_mass = 0.1;
 
         api.changeDynamics(actor, -1, dyn_args);
 
@@ -72,7 +78,7 @@ public:
         myC.m_linkIndexA = -1;
         myC.m_linkIndexB = -1;
 
-        k = 1;
+        k = 8;
         b = 0.5;
     }
 
@@ -110,9 +116,9 @@ public:
     void getSE3() {
         api.getBasePositionAndOrientation(actor, pos_actor, quat_actor);
         api.getBaseVelocity(actor, pdot_actor, omega_actor);
-        std::cout << "position - x = " << pos_actor[0] << ", y = " << pos_actor[1] << ", z = " << pos_actor[2] << std::endl;
+        //std::cout << "position - x = " << pos_actor[0] << ", y = " << pos_actor[1] << ", z = " << pos_actor[2] << std::endl;
         float x, y, z, w, a11, a12, a13, a21, a22, a23, a31, a32, a33;
-        std::cout << "quaternion - x = " << quat_actor.getX() << ", y = " << quat_actor.getY() << ", z = " << quat_actor.getZ() << ", w = " << quat_actor.getW() << std::endl;
+        //std::cout << "quaternion - x = " << quat_actor.getX() << ", y = " << quat_actor.getY() << ", z = " << quat_actor.getZ() << ", w = " << quat_actor.getW() << std::endl;
         x = quat_actor.getX();
         y = quat_actor.getY();
         z = quat_actor.getZ();
@@ -174,17 +180,17 @@ public:
         minus_RT_actor[2][1] = -RT_actor[1][2];
         minus_RT_actor[2][2] = -RT_actor[2][2];
 
-        std::cout << "Rotation matrix is" << std::endl;
-        std::cout << R_actor[0][0] << "," << R_actor[0][1] << "," << R_actor[0][2] << std::endl;
-        std::cout << R_actor[1][0] << "," << R_actor[1][1] << "," << R_actor[1][2] << std::endl;
-        std::cout << R_actor[2][0] << "," << R_actor[2][1] << "," << R_actor[2][2] << std::endl;
+        //std::cout << "Rotation matrix is" << std::endl;
+        //std::cout << R_actor[0][0] << "," << R_actor[0][1] << "," << R_actor[0][2] << std::endl;
+        //std::cout << R_actor[1][0] << "," << R_actor[1][1] << "," << R_actor[1][2] << std::endl;
+        //std::cout << R_actor[2][0] << "," << R_actor[2][1] << "," << R_actor[2][2] << std::endl;
     }
 
     void evalCON() {
 
-        p_cmd[0] = 0;
-        p_cmd[1] = 0;
-        p_cmd[2] = 1;
+        //p_cmd[0] = 0;
+        //p_cmd[1] = 0;
+        //p_cmd[2] = 1;
 
         api.getContactPoints(myC, &contactInfo);
         N_con = contactInfo.m_numContactPoints;
@@ -249,7 +255,7 @@ public:
                 positiononB[1] = contactInfo.m_contactPointData[k].m_positionOnBInWS[1];
                 positiononB[2] = contactInfo.m_contactPointData[k].m_positionOnBInWS[2];
 
-                std::cout << "contact location is: x = " << positiononB[0] << ", y = " << positiononB[1] << ", z = " << positiononB[2] << std::endl;
+                //std::cout << "contact location is: x = " << positiononB[0] << ", y = " << positiononB[1] << ", z = " << positiononB[2] << std::endl;
                 //cross(positiononB,f_i)
                 myCROSS(positiononB, f_i);
 
@@ -323,11 +329,11 @@ public:
         t_prime[1] = t_prime[1] + Ax[1];
         t_prime[2] = t_prime[2] + Ax[2];
 
-        std::cout << "Total force is : x = " << force[0] << ", y = " << force[1] << ", z = " << force[2] << std::endl;
-        std::cout << "Total torque is : x = " << torque[0] << ", y = " << torque[1] << ", z = " << torque[2] << std::endl;
+        //std::cout << "Total force is : x = " << force[0] << ", y = " << force[1] << ", z = " << force[2] << std::endl;
+        //std::cout << "Total torque is : x = " << torque[0] << ", y = " << torque[1] << ", z = " << torque[2] << std::endl;
 
-        std::cout << "Total f_prime is : x = " << f_prime[0] << ", y = " << f_prime[1] << ", z = " << f_prime[2] << std::endl;
-        std::cout << "Total t_prime is : x = " << t_prime[0] << ", y = " << t_prime[1] << ", z = " << t_prime[2] << std::endl;
+        //std::cout << "Total f_prime is : x = " << f_prime[0] << ", y = " << f_prime[1] << ", z = " << f_prime[2] << std::endl;
+        //std::cout << "Total t_prime is : x = " << t_prime[0] << ", y = " << t_prime[1] << ", z = " << t_prime[2] << std::endl;
 
 
     }
@@ -341,13 +347,77 @@ public:
 
 int main()
 {
-    myBULLET SIM(0.01f);
+    
+
+    // UDP class object
+    myVIRTUOSE_UDP myUDP(27017, 27018, "127.0.0.1", "127.0.0.1");
+    float input_pos[7] = { 0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,1.0f };
+    myUDP.setup_UDP();
+
+    // Virtuose object attributes
+    const char* myPORT = "127.0.0.1#53210";
+    float myFORCEFACTOR = 1.0f, mySPEEDFACTOR = 1.0f, myDT = 0.01f;
+
+    // Virtuose object definition
+    ARM RightARM("127.0.0.1#53210", myFORCEFACTOR, mySPEEDFACTOR, myDT);
+    RightARM.name = "RightARM";
+    RightARM.quick_start();
+    RightARM.debug_getPOS();
+
+    // Impedance control parameters
+    float k = 0.1f, b = 0.1f;
+
+    // Command structure object
+    CMD cmd_R(k, b);
+
+    for (int i = 0; i < 7; i++) {
+        cmd_R.X_d[i] = RightARM.getPOS()[i];
+    }
+
+    int duration = 1000;
+    myVIRTUOSE_LOG RightARM_LOG(duration); // duration input
+
+    myWRITE_VIRT_LOG Right_LOG_writer(duration);
+
+    int data_count = 0;
+
+
+
+    myBULLET SIM(myDT);
     btVector3 pos;
     btQuaternion quat;
-    
+
+    float f_HAPTION_CMD[6];
+    f_HAPTION_CMD[0] = 0;
+        f_HAPTION_CMD[1] = 0;
+        f_HAPTION_CMD[2] = 0;
+        f_HAPTION_CMD[3] = 0;
+        f_HAPTION_CMD[4] = 0;
+        f_HAPTION_CMD[5] = 0;
 
     printf("Press Q to exit loop\n");
     while (!(GetKeyState('Q') & 0x8000)){
+
+        // Haption stuff
+        myUDP.UDP_send_recv_v3(RightARM.getPOS());
+
+        //cmd_R.P_trn(cmd_R.X_d, RightARM.X); // needed if you wanted to do impedance control with Haption's initial state
+
+
+        RightARM_LOG.write2LOG(data_count, cmd_R.X, cmd_R.f, myUDP.UDP_f);
+
+        // RightARM.sendCMD_f(cmd_R.f); // issues the commanded force and resets the force variable also
+
+        data_count = data_count + 1;
+
+
+
+        // PyBullet stuff
+
+        SIM.p_cmd[0] = RightARM.X[0];
+        SIM.p_cmd[1] = RightARM.X[1];
+        SIM.p_cmd[2] = RightARM.X[2];
+
         SIM.evalCON();
 
         printf("works\n");
@@ -366,9 +436,23 @@ int main()
 
         SIM.api.applyExternalForce(SIM.actor, -1, btVector3(btScalar(SIM.f_cmd[0]), btScalar(SIM.f_cmd[1]), btScalar(SIM.f_cmd[2])), btVector3(btScalar(0), btScalar(0), btScalar(0)), 0);
         
+        f_HAPTION_CMD[0] = SIM.force[0];
+        f_HAPTION_CMD[1] = SIM.force[1];
+        f_HAPTION_CMD[2] = SIM.force[2];
+        std::cout << "Haption command force is : x = " << f_HAPTION_CMD[0] << ", y = " << f_HAPTION_CMD[1] << ", z = " << f_HAPTION_CMD[2] << std::endl;
+        RightARM.sendCMD_f(f_HAPTION_CMD); // issues the commanded force and resets the force variable also
+
         SIM.api.stepSimulation();
-        //Sleep(1);
+        Sleep(myDT);
     }
 
+    // Haption clean up
+
+    Right_LOG_writer.write2FILE(RightARM_LOG);
+
+    myUDP.cleanup();
+    RightARM.quick_stop();
+
+    return 0;
 }
 
