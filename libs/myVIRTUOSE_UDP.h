@@ -171,7 +171,7 @@ public:
         sendbuf3 = UDPsendbuf.c_str();
 
         iResult = send(ConnectSocket, sendbuf3, (int)strlen(sendbuf3), 0);
-        wprintf(L"datagrams sent...\n");
+        //wprintf(L"datagrams sent...\n");
         iResult2 = recvfrom(RecvSocket,
             RecvBuf, BufLen, 0, (SOCKADDR*)&SenderAddr, &SenderAddrSize);
 
@@ -179,7 +179,7 @@ public:
 
         if (iResult2 > 0) // print recvbuffer ONLY if something was received
         {
-            wprintf(L"Received datagrams...\n");
+            //wprintf(L"Received datagrams...\n");
 
             //std::cout << RecvBuf << std::endl;
             std::string myMATLAB_DATA(RecvBuf);
@@ -203,7 +203,7 @@ public:
         }
         else
         {
-            wprintf(L"Received no datagrams...\n");
+            //wprintf(L"Received no datagrams...\n");
             // if no UDP communication occurred, set rendering force to 0
             for (int f_idx = 0; f_idx < 6; f_idx++) {
                 UDP_f[f_idx] = 0;

@@ -78,8 +78,7 @@ public:
         myC.m_linkIndexA = -1;
         myC.m_linkIndexB = -1;
 
-        k = 8;
-        b = 0.5;
+        
     }
 
     void myCROSS(float v1_in[3], float v2_in[3]) {
@@ -194,7 +193,7 @@ public:
 
         api.getContactPoints(myC, &contactInfo);
         N_con = contactInfo.m_numContactPoints;
-        std::cout << "number of contacts are : " << N_con << std::endl;
+        //std::cout << "number of contacts are : " << N_con << std::endl;
 
         force[0] = 0;
         force[1] = 0;
@@ -338,8 +337,10 @@ public:
 
     }
 
-    myBULLET(float time_step_in) {
+    myBULLET(float time_step_in, float k_in, float b_in) {
         time_step = time_step_in;
+        k = k_in;
+        b = b_in;
         init();
     }
 };
@@ -382,8 +383,12 @@ int main()
     int data_count = 0;
 
 
+    /*float myBULLET_k = 8;
+    float myBULLET_b = 0.5;*/
 
-    myBULLET SIM(myDT);
+    float myBULLET_k = 50;
+    float myBULLET_b = 3;
+    myBULLET SIM(myDT, myBULLET_k, myBULLET_b);
     btVector3 pos;
     btQuaternion quat;
 
@@ -420,7 +425,7 @@ int main()
 
         SIM.evalCON();
 
-        printf("works\n");
+        //printf("works\n");
 
         SIM.f_cmd[0] = SIM.k*(SIM.p_cmd[0] - SIM.pos_actor[0]) - SIM.b*(SIM.pdot_actor[0]);
         SIM.f_cmd[1] = SIM.k* (SIM.p_cmd[1] - SIM.pos_actor[1]) - SIM.b * (SIM.pdot_actor[1]);
@@ -449,10 +454,9 @@ int main()
     // Haption clean up
 
     Right_LOG_writer.write2FILE(RightARM_LOG);
-
+    
     myUDP.cleanup();
     RightARM.quick_stop();
 
     return 0;
 }
-

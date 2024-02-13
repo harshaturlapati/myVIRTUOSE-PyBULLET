@@ -112,7 +112,7 @@ class MyVIRTUOSE {                          // The class
 
         void queryPOS() {
             virtGetPosition(VC, X);
-            std::cout << "Haption position is: x = " << X[0] << ", y = " << X[1] << ", z = " << X[2] << std::endl;
+            //std::cout << "Haption position is: x = " << X[0] << ", y = " << X[1] << ", z = " << X[2] << std::endl;
         }
 
         float* getPOS() {
@@ -129,7 +129,7 @@ class MyVIRTUOSE {                          // The class
         void sendCMD_f(float f_input[6]) {
             set_f(f_input);
             virtSetForce(VC, f);
-            std::cout << f[0] << f[1] << f[2] << f[3] << f[4] << f[5] << std::endl;
+            //std::cout << f[0] << f[1] << f[2] << f[3] << f[4] << f[5] << std::endl;
             // reset force to 0 - after every issued command - VERY VERY IMPORTANT if UDP drops out... - discuss with dc.
             for (int i = 0; i < 6; i++) {
                 f[i] = 0;
