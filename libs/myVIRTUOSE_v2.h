@@ -1,102 +1,62 @@
-class CMD {
-
-private:
-    
-
-public:
-    float k, b;
-    float K[7], B[7];
-
-    float X_d[7];
-    float X[7], Xdot[7];
-    float F_e[6] = { 0.0f,0.0f,0.0f,0.0f,0.0f,0.0f};
-
-    float dX[7];
-
-    float f[6] = { 0.0f,0.0f,0.0f,0.0f,0.0f,0.0f };
-
-    void set_F_d(float F_e_input[6]) {
-        for (int i = 0; i < 6; i++) {
-            F_e[i] = F_e_input[i];
-        }
-    }
-
-    void set_X_d(float X_d_input[7]) {
-        for (int i = 0; i < 7; i++) {
-            X_d[i] = X_d_input[i];
-        }
-    }
-
-    void set_X(float X_input[7]) {
-        for (int i = 0; i < 7; i++) {
-            X[i] = X_input[i];
-        }
-    }
-    void set_Xdot(float Xdot_input[7]) {
-        for (int i = 0; i < 7; i++) {
-            Xdot[i] = Xdot_input[i];
-        }
-    }
-    void set_ext_F(float ext_F_input[6]) {
-        for (int i = 0; i < 6; i++) {
-            F_e[i] = ext_F_input[i];
-        }
-    }
-
-    float* P_trn(float X_d_input[7], float X_input[7])
-    {
-        set_X_d(X_d_input);
-        set_X(X_input);
-        for (int i = 0; i < 3; i++)
-        {
-            dX[i] = X_d[i] - X[i];
-            f[i] = K[i] * dX[i] + F_e[i];
-        }
-        return f;
-    }
-
-    float* PD_trn(float X_d_input[7], float X_input[7])
-    {
-        set_X_d(X_d_input);
-        set_X(X_input);
-        for (int i = 0; i < 3; i++)
-        {
-            dX[i] = X_d[i] - X[i];
-            f[i] = K[i] * dX[i] - B[i] * Xdot[i] + F_e[i]; // While pushing the human towards the X_d, also give an opposite force along the current velocity
-        }
-        return f;
-    }
-
-    CMD(float k_input, float b_input) {
-        k = k_input;
-        b = b_input;
-        for (int i = 0; i < 7; i++)
-        {
-            K[i] = k;
-            B[i] = b;
-        }
-    }
-
-    CMD(float K_input[7], float B_input[7]) {
-        for (int i = 0; i < 7; i++)
-        {
-            K[i] = K_input[i];
-            B[i] = B_input[i];
-        }
-    }
-};
-
 class MyVIRTUOSE {                          // The class
-    private:
-        
-    public:                                 // Access specifier
-        VirtContext VC;
-        float X[7];
-        float f[6] = { 0.0f,0.0f,0.0f,0.0f,0.0f,0.0f };
-        const char* PORT;                                       // myAttributes
-        float forcefactor, speedfactor, dt;                     // force factor, speed factor, and sampling rate - VERY IMPORTANT
-        float identity[7] = { 0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,1.0f };
-        float worldisbelow[7] = { 0.0f,0.0f,1.0f,0.0f,0.0f,0.0f,1.0f };
+private:
+
+public:                                 // Access specifier
+    VirtContext VC;
+    float X[7];
+    float f[6] = { 0.0f,0.0f,0.0f,0.0f,0.0f,0.0f };
+    const char* PORT;                                       // myAttributes
+    float forcefactor, speedfactor, dt;                     // force factor, speed factor, and sampling rate - VERY IMPORTANT
+    float identity[7] = { 0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,1.0f };
+    float worldisbelow[7] = { 0.0f,0.0f,1.0f,0.0f,0.0f,0.0f,1.0f };
+
+    float ARM_R[3][3];
+
+    void getR(float x_in, float y_in, float z_in, float w_in){
+            float x, y, z, w, a11, a12, a13, a21, a22, a23, a31, a32, a33;
+            //std::cout << "quaternion - x = " << quat_actor.getX() << ", y = " << quat_actor.getY() << ", z = " << quat_actor.getZ() << ", w = " << quat_actor.getW() << std::endl;
+            x = x_in;
+            y = y_in;
+            z = z_in;
+            w = w_in;
+
+
+            float norm_quat = x * x + y * y + z * z + w * w;
+            if (norm_quat == 0)
+            {
+                ARM_R[0][0] = 1;
+                ARM_R[0][1] = 0;
+                ARM_R[0][2] = 0;
+                ARM_R[1][0] = 0;
+                ARM_R[1][1] = 1;
+                ARM_R[1][2] = 0;
+                ARM_R[2][0] = 0;
+                ARM_R[2][1] = 0;
+                ARM_R[2][2] = 1;
+            }
+            else
+            {
+                a11 = (w * w + x * x + y * y - z * z) / norm_quat;
+                a12 = 2 * (x * y - w * z) / norm_quat;
+                a13 = 2 * (x * z + w * y) / norm_quat;
+                a21 = 2 * (x * y + w * z) / norm_quat;
+                a22 = (w * w - x * x + y * y - z * z) / norm_quat;
+                a23 = 2 * (y * z - w * x) / norm_quat;
+                a31 = 2 * (x * z - w * y) / norm_quat;
+                a32 = 2 * (y * z + w * x) / norm_quat;
+                a33 = (w * w - x * x - y * y + z * z) / norm_quat;
+                ARM_R[0][0] = a11;
+                ARM_R[0][1] = a12;
+                ARM_R[0][2] = a13;
+                ARM_R[1][0] = a21;
+                ARM_R[1][1] = a22;
+                ARM_R[1][2] = a23;
+                ARM_R[2][0] = a31;
+                ARM_R[2][1] = a32;
+                ARM_R[2][2] = a33;
+            }
+
+}
 
         void set_dt(float dt_input) {
             dt = dt_input;

@@ -1,3 +1,6 @@
+#include <vector>
+#include <Windows.h>
+#include <iostream>
 
 #include <iostream>
 #include <fstream>
