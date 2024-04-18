@@ -8,6 +8,7 @@ This would not have been possible without the kind contribution by @erwincoumans
 
 # Installation
 Clone this repo
+Install [Python](https://docs.python-guide.org/starting/install3/win/#install3-windows) if you haven't.
 Copy paste the virtuoseAPI.dll into C:/Windows/System32/ - to ensure the built executable can find it in the path when running.
 That's it!
 
