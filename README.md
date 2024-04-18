@@ -9,8 +9,16 @@ This would not have been possible without the kind contribution by @erwincoumans
 # Installation
 1. Clone this repo
 2. Install [Python](https://docs.python-guide.org/starting/install3/win/#install3-windows) using [Chocolatey](https://community.chocolatey.org/courses/installation/installing?method=installing-chocolatey#cmd).
-3. 
-4. Copy paste the virtuoseAPI.dll into C:/Windows/System32/ - to ensure the built executable can find it in the path when running.
+3. Verify python installation using
+```console
+py --version
+py -m pip --version
+```
+4. Install PyBullet using
+```console
+pip install pybullet
+```
+5. Copy paste the virtuoseAPI.dll into C:/Windows/System32/ - to ensure the built executable can find it in the path when running.
 That's it!
 
 # Building the project
