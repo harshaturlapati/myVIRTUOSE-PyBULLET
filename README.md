@@ -8,15 +8,14 @@ This would not have been possible without the kind contribution by @erwincoumans
 
 # Installation
 1. Clone this repo
-2. Install [Python]([https://docs.python-guide.org/starting/install3/win/#install3-windows](https://www.python.org/ftp/python/3.11.9/python-3.11.9-amd64.exe).
-3. Install [Git](https://github.com/git-for-windows/git/releases/download/v2.44.0.windows.1/Git-2.44.0-64-bit.exe)
-4. 
-5. Verify python installation using
+2. Install [Python](https://www.python.org/downloads/).
+3. 
+4. Verify python installation using
 ```console
 py --version
 py -m pip --version
 ```
-4. Install PyBullet using
+5. Install PyBullet using
 ```console
 pip install pybullet
 ```
@@ -32,6 +31,13 @@ Generate CMake Cache
 Build all executables
 Preferred naming convention
   "[0-9]*-*/[0-9]*.cpp"
+
+# Running Virtuose-PyBullet
+1. Run PyBullet shared memory
+```console
+python -m pybullet_utils.runServer
+```
+2. Run Visual Studio code.
 
 # Notes of caution
 - In any loop of sampling feedback from the Virtuose, ensure to include a Sleep() statement.
