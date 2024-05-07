@@ -16,7 +16,7 @@ py -m pip --version
 ```
 4. Install PyBullet using
 ```console
-pip install pybullet
+pip3 install pybullet
 ```
 5. Copy paste the virtuoseAPI.dll into C:/Windows/System32/ - to ensure the built executable can find it in the path when running.
 That's it!
