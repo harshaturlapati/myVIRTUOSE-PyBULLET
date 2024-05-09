@@ -1,5 +1,5 @@
 #include <myINCLUDES.h>                 // baked in
-#include "VirtuoseAPI.h"
+#include "VirtuoseAPI.h"                // comes from Haption
 #include <myVIRTUOSE_v2.h>              // baked in
 #include <myVIRTUOSE_UDP.h>             // baked in
 #include <myVIRTUOSE_LOGGING.h>         // baked in
@@ -20,8 +20,8 @@ int main()
     // Virtuose object definition
     ARM RightARM("127.0.0.1#53210", myFORCEFACTOR, mySPEEDFACTOR, myDT);
     RightARM.name = "RightARM";
-    RightARM.quick_start();
-    RightARM.debug_getPOS();
+    RightARM.quick_start(); // always needs to be done
+    RightARM.debug_getPOS(); // always needs to be done
 
     // Impedance control parameters
     float myBULLET_k = 100;
@@ -41,7 +41,7 @@ int main()
 
         // Haption stuff
         myUDP.UDP_send_recv_v3(RightARM.getPOS()); // crucial, because getPOS queries Virtuose pose and updates state variables while also with UDP_send_recv_v3() relaying pose information to PORT 27017
-
+        
         // commented out for writing logs - // RightARM_LOG.write2LOG(data_count, cmd_R.X, cmd_R.f, myUDP.UDP_f);
         // commented out for writing logs - // data_count = data_count + 1;
 

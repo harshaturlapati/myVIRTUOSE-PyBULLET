@@ -2,6 +2,7 @@
 #include "SharedMemory/PhysicsClientSharedMemory_C_API.h"
 #include "SharedMemory/b3RobotSimulatorClientAPI_InternalData.h"
 
+
 class myBULLET {
 public:
     float time_step;
@@ -31,6 +32,9 @@ public:
     float k,b;
     float p_cmd[3];
     float f_cmd[3];
+
+    // Consider Eigen for lightweight rigid body dynamics computation
+    // RBDL vs Boost RL
 
     void init() {
         b3PhysicsClientHandle client = b3ConnectSharedMemory(SHARED_MEMORY_KEY);
@@ -83,6 +87,8 @@ public:
         Ax[1] = A[1][0] * x[0] + A[1][1] * x[1] + A[1][2] * x[2];
         Ax[2] = A[2][0] * x[0] + A[2][1] * x[1] + A[2][2] * x[2];
     }
+
+    
 
     void multiplyAB(float A[3][3], float B[3][3]) {
         for (int i = 0; i < 3; i++) {
@@ -172,19 +178,22 @@ public:
         N_con = contactInfo.m_numContactPoints;
         //std::cout << "number of contacts are : " << N_con << std::endl;
 
+        // space frame forces
         force[0] = 0;
         force[1] = 0;
         force[2] = 0;
 
+        // space frame torques
         torque[0] = 0;
         torque[1] = 0;
         torque[2] = 0;
 
+        // object frame forces
         f_prime[0] = 0;
         f_prime[1] = 0;
         f_prime[2] = 0;
 
-
+        // object frame torques
         t_prime[0] = 0;
         t_prime[1] = 0;
         t_prime[2] = 0;
@@ -200,14 +209,16 @@ public:
             //std::cout << contactInfo.m_contactPointData[j].m_bodyUniqueIdA << std::endl;
             //std::cout << contactInfo.m_contactPointData[j].m_contactDistance << std::endl;
 
-            for (int k = 0; k < N_con; k++)
+            for (int k = 0; k < N_con; k++) // for each contact
             {
-
+                
                 float curr_v1[3], curr_f1;
                 float curr_v2[3], curr_f2;
                 float curr_v3[3], curr_f3;
                 float f_i[3];
                 f_i[0] = 0; f_i[1] = 0; f_i[2] = 0;
+
+                // compose the 3D contact force from individual contact frame components and put in force[3]
                 for (int dim = 0; dim < 3; dim++) {
                     curr_f1 = contactInfo.m_contactPointData[k].m_linearFrictionForce1;
                     curr_f2 = contactInfo.m_contactPointData[k].m_linearFrictionForce2;
@@ -231,6 +242,7 @@ public:
 
                 }
 
+                // get the point of contact
                 positiononB[0] = contactInfo.m_contactPointData[k].m_positionOnBInWS[0];
                 positiononB[1] = contactInfo.m_contactPointData[k].m_positionOnBInWS[1];
                 positiononB[2] = contactInfo.m_contactPointData[k].m_positionOnBInWS[2];
