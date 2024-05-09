@@ -12,6 +12,52 @@ public:                                 // Access specifier
 
     float ARM_R[3][3];
 
+    void updateR() {
+        float x, y, z, w, a11, a12, a13, a21, a22, a23, a31, a32, a33;
+        //std::cout << "quaternion - x = " << quat_actor.getX() << ", y = " << quat_actor.getY() << ", z = " << quat_actor.getZ() << ", w = " << quat_actor.getW() << std::endl;
+        x = X[3];
+        y = X[4];
+        z = X[5];
+        w = X[6];
+
+
+        float norm_quat = x * x + y * y + z * z + w * w;
+        if (norm_quat == 0)
+        {
+            ARM_R[0][0] = 1;
+            ARM_R[0][1] = 0;
+            ARM_R[0][2] = 0;
+            ARM_R[1][0] = 0;
+            ARM_R[1][1] = 1;
+            ARM_R[1][2] = 0;
+            ARM_R[2][0] = 0;
+            ARM_R[2][1] = 0;
+            ARM_R[2][2] = 1;
+        }
+        else
+        {
+            a11 = (w * w + x * x + y * y - z * z) / norm_quat;
+            a12 = 2 * (x * y - w * z) / norm_quat;
+            a13 = 2 * (x * z + w * y) / norm_quat;
+            a21 = 2 * (x * y + w * z) / norm_quat;
+            a22 = (w * w - x * x + y * y - z * z) / norm_quat;
+            a23 = 2 * (y * z - w * x) / norm_quat;
+            a31 = 2 * (x * z - w * y) / norm_quat;
+            a32 = 2 * (y * z + w * x) / norm_quat;
+            a33 = (w * w - x * x - y * y + z * z) / norm_quat;
+            ARM_R[0][0] = a11;
+            ARM_R[0][1] = a12;
+            ARM_R[0][2] = a13;
+            ARM_R[1][0] = a21;
+            ARM_R[1][1] = a22;
+            ARM_R[1][2] = a23;
+            ARM_R[2][0] = a31;
+            ARM_R[2][1] = a32;
+            ARM_R[2][2] = a33;
+        }
+
+    }
+
     void getR(float x_in, float y_in, float z_in, float w_in){
             float x, y, z, w, a11, a12, a13, a21, a22, a23, a31, a32, a33;
             //std::cout << "quaternion - x = " << quat_actor.getX() << ", y = " << quat_actor.getY() << ", z = " << quat_actor.getZ() << ", w = " << quat_actor.getW() << std::endl;
