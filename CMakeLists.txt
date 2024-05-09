@@ -7,6 +7,7 @@ cmake_minimum_required(VERSION 3.12)
 SUBDIRS(src)
 
 include_directories("${PROJECT_SOURCE_DIR}/libs")
+include_directories("${PROJECT_SOURCE_DIR}/libs/Eigen")
 include_directories("${PROJECT_SOURCE_DIR}/src")
 
 #add_executable(pybullet_cpp_example pybullet_cpp_example.cpp)
