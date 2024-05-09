@@ -3,18 +3,16 @@
 
 int main()
 {
-    Eigen::Matrix2d a;
-    a << 1, 2,
+    Eigen::Matrix2d mat;
+    mat << 1, 2,
         3, 4;
-    Eigen::MatrixXd b(2, 2);
-    b << 2, 3,
-        1, 4;
-    std::cout << "a + b =\n" << a + b << std::endl;
-    std::cout << "a - b =\n" << a - b << std::endl;
-    std::cout << "Doing a += b;" << std::endl;
-    a += b;
-    std::cout << "Now a =\n" << a << std::endl;
-    Eigen::Vector3d v(1, 2, 3);
-    Eigen::Vector3d w(1, 0, 0);
-    std::cout << "-v + w - v =\n" << -v + w - v << std::endl;
+    Eigen::Vector2d u(-1, 1), v(2, 0);
+    std::cout << "Here is mat*mat:\n" << mat * mat << std::endl;
+    std::cout << "Here is mat*u:\n" << mat * u << std::endl;
+    std::cout << "Here is u^T*mat:\n" << u.transpose() * mat << std::endl;
+    std::cout << "Here is u^T*v:\n" << u.transpose() * v << std::endl;
+    std::cout << "Here is u*v^T:\n" << u * v.transpose() << std::endl;
+    std::cout << "Let's multiply mat by itself" << std::endl;
+    mat = mat * mat;
+    std::cout << "Now mat is mat:\n" << mat << std::endl;
 }
