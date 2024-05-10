@@ -57,6 +57,8 @@ int main()
 
         //printf("works\n");
 
+		// // // Command force at the center of the virtual object
+		// Notice that these are all linear terms - springs and dampers to be connected between com object and com handle	
         SIM.f_cmd[0] = SIM.k * (SIM.p_cmd[0] - SIM.pos_actor[0]) - SIM.b * (SIM.pdot_actor[0]);
         SIM.f_cmd[1] = SIM.k * (SIM.p_cmd[1] - SIM.pos_actor[1]) - SIM.b * (SIM.pdot_actor[1]);
         SIM.f_cmd[2] = SIM.k * (SIM.p_cmd[2] - SIM.pos_actor[2]) - SIM.b * (SIM.pdot_actor[2]);
@@ -66,6 +68,7 @@ int main()
 
         //SIM.R_actor[0][0]
 
+		// // // Command forces at different points of the hook
         float A[3][3], x[3];
 
         for (int hook = 0; hook < 3; hook++) {
@@ -73,6 +76,7 @@ int main()
             x[1] = cmd_R.m_i_n[hook][1];
             x[2] = cmd_R.m_i_n[hook][2];
 
+			// Determining virtfix_p - object hook location in space frame
             float Ax[3];
             Ax[0] = SIM.R_actor[0][0] * x[0] + SIM.R_actor[0][1] * x[1] + SIM.R_actor[0][2] * x[2];
             Ax[1] = SIM.R_actor[1][0] * x[0] + SIM.R_actor[1][1] * x[1] + SIM.R_actor[1][2] * x[2];
@@ -82,6 +86,7 @@ int main()
             virtfix_p[1] = SIM.pos_actor[1] + Ax[1];
             virtfix_p[2] = SIM.pos_actor[2] + Ax[2];
 
+			// Determining CMD_virtfix_p - handle hook location in space frame
             float Bx[3];
 
             Bx[0] = RightARM.ARM_R[0][0] * x[0] + RightARM.ARM_R[0][1] * x[1] + RightARM.ARM_R[0][2] * x[2];
@@ -93,14 +98,17 @@ int main()
             CMD_virtfix_p[1] = SIM.p_cmd[1] + Bx[1];
             CMD_virtfix_p[2] = SIM.p_cmd[2] + Bx[2];
 
+			// virtfix_f is the force acting at the hook in space frame
             virtfix_f[0] = kr_CMD * (CMD_virtfix_p[0] - virtfix_p[0]);
             virtfix_f[1] = kr_CMD * (CMD_virtfix_p[1] - virtfix_p[1]);
             virtfix_f[2] = kr_CMD * (CMD_virtfix_p[2] - virtfix_p[2]);
 
+			// apply virtfix_f at virtfix_p
             SIM.api.applyExternalForce(SIM.actor, -1, btVector3(btScalar(virtfix_f[0]), btScalar(virtfix_f[1]), btScalar(virtfix_f[2])), btVector3(btScalar(virtfix_p[0]), btScalar(virtfix_p[1]), btScalar(virtfix_p[2])), 0);
 
         }
 
+		// Apply a damping rotation torque to the object
         SIM.api.applyExternalTorque(SIM.actor, -1, btVector3(btScalar(-br_CMD * (SIM.omega_actor[0])), btScalar(-br_CMD * (SIM.omega_actor[1])), btScalar(-br_CMD * (SIM.omega_actor[2]))), 0);
         //(SIM.actor, -1, btVector3(btScalar(-br_CMD * (SIM.omega_actor[0])), btScalar(-br_CMD * (SIM.omega_actor[1])), btScalar(-br_CMD * (SIM.omega_actor[2]))), btVector3(btScalar(SIM.pos_actor[0]), btScalar(SIM.pos_actor[1]), btScalar(SIM.pos_actor[2])), 0);
 
