@@ -3,7 +3,7 @@
 #include <myVIRTUOSE_v2.h>              // baked in
 #include <myVIRTUOSE_UDP.h>             // baked in
 #include <myVIRTUOSE_LOGGING.h>         // baked in
-#include <myVirtuose_CMD.h>
+#include <myVirtuose_CMD_v2.h>
 #include <myBULLET_v2.h>
 
 int main()
@@ -47,13 +47,19 @@ int main()
 
         // PyBullet stuff
 
+        // Step 1 : Compute object frame O and handle frame H
+
+        // Step 2 : e_i is available in CMD objects
+        
+        // Step 3 : 
+
         SIM.p_cmd[0] = RightARM.X[0];
         SIM.p_cmd[1] = RightARM.X[1];
         SIM.p_cmd[2] = RightARM.X[2];
 
         RightARM.updateR(); // updates Arm Rotation matrix from quaternion feedback - ensure its called only after queryPOS is done
 
-        SIM.evalCON();
+        //SIM.evalCON();
 
         //printf("works\n");
 

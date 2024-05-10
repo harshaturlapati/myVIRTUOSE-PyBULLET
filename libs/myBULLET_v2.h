@@ -208,9 +208,12 @@ public:
         {
             //std::cout << contactInfo.m_contactPointData[j].m_bodyUniqueIdA << std::endl;
             //std::cout << contactInfo.m_contactPointData[j].m_contactDistance << std::endl;
+            
 
             for (int k = 0; k < N_con; k++) // for each contact
             {
+
+                //contactInfo.m_contactPointData[k].m_bodyUniqueIdA
                 
                 float curr_v1[3], curr_f1;
                 float curr_v2[3], curr_f2;
@@ -318,4 +321,3 @@ public:
         init();
     }
 };
-
