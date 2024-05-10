@@ -104,4 +104,10 @@ int main()
     Eigen::MatrixXd T4(T3.rows() + padding.rows(), T3.cols()); // <-- D(A.rows() + B.rows(), ...)
     T4 << T3, padding; // <-- syntax is the same for vertical and horizontal concatenation
     std::cout << T4 << std::endl;
+
+    vector<Eigen::Vector4d> e_i_tilde2;
+    e_i_tilde2.push_back(Eigen::Vector4d(1, 0, 0, 1));
+    std::cout << Pi * e_i_tilde2[0] << std::endl;
+
+
 }

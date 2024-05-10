@@ -1,5 +1,14 @@
 #include <Eigen/Dense>
 
+Eigen::Vector3d my_cross(Eigen::Vector3d a, Eigen::Vector3d b) {
+    Eigen::Vector3d c;
+    c(0) = a(1) * b(2) - a(2) * b(1);
+    c(1) = -(a(0) * b(2) - a(2) * b(0));
+    c(2) = a(0) * b(1) - a(1) * b(0);
+    //std::cout << c << std::endl;
+    return c;
+}
+
 Eigen::Matrix3d R_frm_quat(float X[4]) {
     Eigen::Matrix3d R_H;
     float x, y, z, w, a11, a12, a13, a21, a22, a23, a31, a32, a33;
