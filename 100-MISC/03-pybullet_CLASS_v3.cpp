@@ -26,8 +26,9 @@ int main()
 
     // Impedance control parameters
     
-    float my_b = 0.5;
-    myBULLET SIM(myDT, my_b);
+    float b_rot = 0.5;
+    float b_trn = 4;
+    myBULLET SIM(myDT, b_trn, b_rot);
 
     // to be sent to Haption at the end - may consider making this part of the CMD structure?
     

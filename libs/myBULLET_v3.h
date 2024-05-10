@@ -16,7 +16,7 @@ public:
     btVector3 pos_actor, pdot_actor, omega_actor;
     btQuaternion quat_actor;
 
-    float b;
+    float b, br;
 
     // Consider Eigen for lightweight rigid body dynamics computation
     Eigen::Vector3d p_O;
@@ -81,13 +81,18 @@ public:
             Eigen::Vector3d virt_hook = p_O + R_O * e_i[i];
             api.applyExternalForce(actor, -1, btVector3(btScalar(f_i_plus[i](0)), btScalar(f_i_plus[i](1)), btScalar(f_i_plus[i](2))), btVector3(btScalar(virt_hook(0)), btScalar(virt_hook(1)), btScalar(virt_hook(2))), 0);
         }
-        // Damping torque to stabilise the object
-        api.applyExternalTorque(actor, -1, btVector3(btScalar(-b * (omega_actor[0])), btScalar(-b* (omega_actor[1])), btScalar(-b* (omega_actor[2]))), 0);
+
+        // Linear Damping force to help stabilise
+        api.applyExternalForce(actor, -1, btVector3(btScalar(-b * pdot_actor[0]), btScalar(-b * pdot_actor[1]), btScalar(-b * pdot_actor[2])), btVector3(btScalar(p_O(0)), btScalar(p_O(1)), btScalar(p_O(2))), 0);
+
+        // Rotational Damping torque to stabilise the object
+        api.applyExternalTorque(actor, -1, btVector3(btScalar(-br * (omega_actor[0])), btScalar(-br* (omega_actor[1])), btScalar(-br* (omega_actor[2]))), 0);
     }
 
-    myBULLET(float time_step_in, float b_in) {
+    myBULLET(float time_step_in, float b_in, float br_in) {
         time_step = time_step_in;
         b = b_in;
+        br = br_in;
         init();
     }
 };
