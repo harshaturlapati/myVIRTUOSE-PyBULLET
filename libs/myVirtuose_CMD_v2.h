@@ -1,3 +1,7 @@
+#include <Eigen/Dense>
+#include <vector> 
+using namespace std;
+
 class CMD {
 
 private:
@@ -16,7 +20,10 @@ public:
     float W[6] = { 0.0f,0.0f,0.0f,0.0f,0.0f,0.0f };
     float tau2_limit;
 
-    float e_i[3][3];
+    float m_i_n[3][3];
+
+    vector<Eigen::Vector3d> e_i;
+    vector<Eigen::Vector4d> e_i_tilde;
 
     void set_F_d(float F_e_input[6]) {
         for (int i = 0; i < 6; i++) {
@@ -35,11 +42,13 @@ public:
             X[i] = X_input[i];
         }
     }
+    
     void set_Xdot(float Xdot_input[7]) {
         for (int i = 0; i < 7; i++) {
             Xdot[i] = Xdot_input[i];
         }
     }
+    
     void set_ext_F(float ext_F_input[6]) {
         for (int i = 0; i < 6; i++) {
             F_e[i] = ext_F_input[i];
@@ -140,14 +149,35 @@ public:
     }
 
     void set_e_i_default() {
-        e_i[0][0] = 1; e_i[0][1] = 0; e_i[0][2] = 0;
-        e_i[1][0] = 0; e_i[1][1] = 1; e_i[1][2] = 0;
-        e_i[2][0] = 0; e_i[2][1] = 0; e_i[2][2] = 1;
+
+        e_i.push_back(Eigen::Vector3d(1, 0, 0));
+        e_i.push_back(Eigen::Vector3d(0, 1, 0));
+        e_i.push_back(Eigen::Vector3d(0, 0, 1)); // can add more e_i here if you want...
+
+        gen_e_i_tilde(); // depending on how you set e_i, e_i_tilde will be generated and kept
     }
 
+    void gen_e_i_tilde() {
+        Eigen::Vector4d dummy;
+        for (int i = 0; i < e_i.size(); i++) {
+            //std::cout << i << std::endl;
+            //std::cout << "e-i looks like:\n" << e_i[i] << std::endl;
+            dummy << e_i[i], 1;
+            //std::cout << "e-i tilde looks like:\n" << dummy << std::endl;
+            e_i_tilde.push_back(dummy);
+        }
+        //std::cout << "e-i tilde looks like:\n" << e_i_tilde[0] << std::endl;
+    }
+
+    void set_m_i_n_default() {
+        m_i_n[0][0] = 1; m_i_n[0][1] = 0; m_i_n[0][2] = 0;
+        m_i_n[1][0] = 0; m_i_n[1][1] = 1; m_i_n[1][2] = 0;
+        m_i_n[2][0] = 0; m_i_n[2][1] = 0; m_i_n[2][2] = 1;
+    }
 
     CMD() { // default constructor
         tau2_limit = 4;
+        set_m_i_n_default();
         set_e_i_default();
         for (int i = 0; i < 6; i++)
         {
@@ -159,6 +189,7 @@ public:
         k = k_input;
         b = b_input;
         tau2_limit = 4;
+        set_m_i_n_default();
         set_e_i_default();
         for (int i = 0; i < 7; i++)
         {
@@ -169,6 +200,7 @@ public:
 
     CMD(float K_input[7], float B_input[7]) {
         tau2_limit = 4;
+        set_m_i_n_default();
         set_e_i_default();
         for (int i = 0; i < 7; i++)
         {

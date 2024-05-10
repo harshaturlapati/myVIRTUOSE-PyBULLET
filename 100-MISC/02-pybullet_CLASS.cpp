@@ -83,7 +83,7 @@ int main()
         //cmd_R.P_trn(cmd_R.X_d, RightARM.X); // needed if you wanted to do impedance control with Haption's initial state
 
 
-        RightARM_LOG.write2LOG(data_count, cmd_R.X, cmd_R.f, myUDP.UDP_f);
+        //RightARM_LOG.write2LOG(data_count, cmd_R.X, cmd_R.f, myUDP.UDP_f);
         data_count = data_count + 1;
 
         // PyBullet stuff
@@ -189,7 +189,7 @@ int main()
 
     // Haption clean up
 
-    Right_LOG_writer.write2FILE(RightARM_LOG);
+    //Right_LOG_writer.write2FILE(RightARM_LOG);
     
     myUDP.cleanup();
     RightARM.quick_stop();

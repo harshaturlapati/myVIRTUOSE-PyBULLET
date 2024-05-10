@@ -34,6 +34,11 @@ public:
     float f_cmd[3];
 
     // Consider Eigen for lightweight rigid body dynamics computation
+    Eigen::Vector3d p_O;
+    Eigen::Matrix3d R_O;
+    Eigen::Matrix4d O;
+    float quat_O[4];
+
     // RBDL vs Boost RL
 
     void init() {
@@ -87,8 +92,6 @@ public:
         Ax[1] = A[1][0] * x[0] + A[1][1] * x[1] + A[1][2] * x[2];
         Ax[2] = A[2][0] * x[0] + A[2][1] * x[1] + A[2][2] * x[2];
     }
-
-    
 
     void multiplyAB(float A[3][3], float B[3][3]) {
         for (int i = 0; i < 3; i++) {
@@ -314,9 +317,30 @@ public:
 
     }
 
+    void getSIM_state() {
+        api.getBasePositionAndOrientation(actor, pos_actor, quat_actor);
+        api.getBaseVelocity(actor, pdot_actor, omega_actor);
+
+        quat_O[0] = quat_actor.getX();
+        quat_O[1] = quat_actor.getY();
+        quat_O[2] = quat_actor.getZ();
+        quat_O[3] = quat_actor.getW();
+
+        R_O = R_frm_quat(quat_O);
+        p_O = Eigen::Vector3d(pos_actor[0], pos_actor[1], pos_actor[2]);
+        O = compose(p_O, R_O);
+
+    }
+
     myBULLET(float time_step_in, float k_in, float b_in) {
         time_step = time_step_in;
         k = k_in;
+        b = b_in;
+        init();
+    }
+
+    myBULLET(float time_step_in, float b_in) {
+        time_step = time_step_in;
         b = b_in;
         init();
     }

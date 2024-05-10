@@ -3,8 +3,8 @@
 #include <myVIRTUOSE_v2.h>              // baked in
 #include <myVIRTUOSE_UDP.h>             // baked in
 #include <myVIRTUOSE_LOGGING.h>         // baked in
-#include <myVirtuose_CMD_v2.h>
 #include <myBULLET_v2.h>
+#include <myVirtuose_CMD_v2.h>
 
 int main()
 {
@@ -18,7 +18,8 @@ int main()
     float myFORCEFACTOR = 1.0f, mySPEEDFACTOR = 1.0f, myDT = 0.01f;
 
     // Virtuose object definition
-    ARM RightARM("127.0.0.1#53210", myFORCEFACTOR, mySPEEDFACTOR, myDT);
+    float k_RIGHT = 100;
+    ARM RightARM("127.0.0.1#53210", myFORCEFACTOR, mySPEEDFACTOR, myDT, k_RIGHT);
     RightARM.name = "RightARM";
     RightARM.quick_start(); // always needs to be done
     RightARM.debug_getPOS(); // always needs to be done
@@ -36,22 +37,39 @@ int main()
     float br_CMD = 0.5;
 
 
+    float f_HAPTION_CMD[6];
+    f_HAPTION_CMD[0] = 0;
+    f_HAPTION_CMD[1] = 0;
+    f_HAPTION_CMD[2] = 0;
+    f_HAPTION_CMD[3] = 0;
+    f_HAPTION_CMD[4] = 0;
+    f_HAPTION_CMD[5] = 0;
+
+    float m_i_n[3][3];
+    m_i_n[0][0] = 1; m_i_n[0][1] = 0; m_i_n[0][2] = 0;
+    m_i_n[1][0] = 0; m_i_n[1][1] = 1; m_i_n[1][2] = 0;
+    m_i_n[2][0] = 0; m_i_n[2][1] = 0; m_i_n[2][2] = 1;
+
+    float* vec;
+    float M_I_N[3];
+    float A[3][3], x[3];
+
+    float arm_quat[4], armR[3][3];
+
+
     printf("Press Q to exit loop\n");
     while (!(GetKeyState('Q') & 0x8000)) {
 
-        // Haption stuff
-        myUDP.UDP_send_recv_v3(RightARM.getPOS()); // crucial, because getPOS queries Virtuose pose and updates state variables while also with UDP_send_recv_v3() relaying pose information to PORT 27017
+        // Query Haption state and output through UDP
+        myUDP.UDP_send_recv_v3(RightARM.getPOS()); // getPOS() computes frame H
         
-        // commented out for writing logs - // RightARM_LOG.write2LOG(data_count, cmd_R.X, cmd_R.f, myUDP.UDP_f);
-        // commented out for writing logs - // data_count = data_count + 1;
+        // Compute object frame O
+        SIM.getSIM_state();
 
-        // PyBullet stuff
+        // Compute f_i_plus
 
-        // Step 1 : Compute object frame O and handle frame H
 
-        // Step 2 : e_i is available in CMD objects
-        
-        // Step 3 : 
+
 
         SIM.p_cmd[0] = RightARM.X[0];
         SIM.p_cmd[1] = RightARM.X[1];
@@ -59,12 +77,12 @@ int main()
 
         RightARM.updateR(); // updates Arm Rotation matrix from quaternion feedback - ensure its called only after queryPOS is done
 
-        //SIM.evalCON();
+        SIM.evalCON();
 
         //printf("works\n");
 
-		// // // Command force at the center of the virtual object
-		// Notice that these are all linear terms - springs and dampers to be connected between com object and com handle	
+        // // // Command force at the center of the virtual object
+        // Notice that these are all linear terms - springs and dampers to be connected between com object and com handle	
         SIM.f_cmd[0] = SIM.k * (SIM.p_cmd[0] - SIM.pos_actor[0]) - SIM.b * (SIM.pdot_actor[0]);
         SIM.f_cmd[1] = SIM.k * (SIM.p_cmd[1] - SIM.pos_actor[1]) - SIM.b * (SIM.pdot_actor[1]);
         SIM.f_cmd[2] = SIM.k * (SIM.p_cmd[2] - SIM.pos_actor[2]) - SIM.b * (SIM.pdot_actor[2]);
@@ -74,7 +92,7 @@ int main()
 
         //SIM.R_actor[0][0]
 
-		// // // Command forces at different points of the hook
+        // // // Command forces at different points of the hook
         float A[3][3], x[3];
 
         for (int hook = 0; hook < 3; hook++) {
@@ -82,7 +100,7 @@ int main()
             x[1] = cmd_R.m_i_n[hook][1];
             x[2] = cmd_R.m_i_n[hook][2];
 
-			// Determining virtfix_p - object hook location in space frame
+        	// Determining virtfix_p - object hook location in space frame
             float Ax[3];
             Ax[0] = SIM.R_actor[0][0] * x[0] + SIM.R_actor[0][1] * x[1] + SIM.R_actor[0][2] * x[2];
             Ax[1] = SIM.R_actor[1][0] * x[0] + SIM.R_actor[1][1] * x[1] + SIM.R_actor[1][2] * x[2];
@@ -92,7 +110,7 @@ int main()
             virtfix_p[1] = SIM.pos_actor[1] + Ax[1];
             virtfix_p[2] = SIM.pos_actor[2] + Ax[2];
 
-			// Determining CMD_virtfix_p - handle hook location in space frame
+        	// Determining CMD_virtfix_p - handle hook location in space frame
             float Bx[3];
 
             Bx[0] = RightARM.ARM_R[0][0] * x[0] + RightARM.ARM_R[0][1] * x[1] + RightARM.ARM_R[0][2] * x[2];
@@ -104,17 +122,17 @@ int main()
             CMD_virtfix_p[1] = SIM.p_cmd[1] + Bx[1];
             CMD_virtfix_p[2] = SIM.p_cmd[2] + Bx[2];
 
-			// virtfix_f is the force acting at the hook in space frame
+        	// virtfix_f is the force acting at the hook in space frame
             virtfix_f[0] = kr_CMD * (CMD_virtfix_p[0] - virtfix_p[0]);
             virtfix_f[1] = kr_CMD * (CMD_virtfix_p[1] - virtfix_p[1]);
             virtfix_f[2] = kr_CMD * (CMD_virtfix_p[2] - virtfix_p[2]);
 
-			// apply virtfix_f at virtfix_p
+        	// apply virtfix_f at virtfix_p
             SIM.api.applyExternalForce(SIM.actor, -1, btVector3(btScalar(virtfix_f[0]), btScalar(virtfix_f[1]), btScalar(virtfix_f[2])), btVector3(btScalar(virtfix_p[0]), btScalar(virtfix_p[1]), btScalar(virtfix_p[2])), 0);
 
         }
 
-		// Apply a damping rotation torque to the object
+        // Apply a damping rotation torque to the object
         SIM.api.applyExternalTorque(SIM.actor, -1, btVector3(btScalar(-br_CMD * (SIM.omega_actor[0])), btScalar(-br_CMD * (SIM.omega_actor[1])), btScalar(-br_CMD * (SIM.omega_actor[2]))), 0);
         //(SIM.actor, -1, btVector3(btScalar(-br_CMD * (SIM.omega_actor[0])), btScalar(-br_CMD * (SIM.omega_actor[1])), btScalar(-br_CMD * (SIM.omega_actor[2]))), btVector3(btScalar(SIM.pos_actor[0]), btScalar(SIM.pos_actor[1]), btScalar(SIM.pos_actor[2])), 0);
 
@@ -122,16 +140,16 @@ int main()
         cmd_R.setF(SIM.force);
         cmd_R.setTau_safe(SIM.t_prime2);
 
-        //std::cout << "Haption command force is : x = " << f_HAPTION_CMD[0] << ", y = " << f_HAPTION_CMD[1] << ", z = " << f_HAPTION_CMD[2] << std::endl;
+        std::cout << "Haption command force is : x = " << f_HAPTION_CMD[0] << ", y = " << f_HAPTION_CMD[1] << ", z = " << f_HAPTION_CMD[2] << std::endl;
         RightARM.sendCMD_f(cmd_R.W); // issues the commanded force and resets the force variable also
 
+
+     
         SIM.api.stepSimulation();
         Sleep(myDT);
     }
 
     // Haption clean up
-
-    // commented out for writing logs - // Right_LOG_writer.write2FILE(RightARM_LOG);
 
     myUDP.cleanup();
     RightARM.quick_stop();
