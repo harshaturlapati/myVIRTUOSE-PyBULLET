@@ -93,31 +93,23 @@ public:
         }
     }
 
-    void apply_control_forces_DUAL(vector<Eigen::Vector3d> f_i_plus_L, vector<Eigen::Vector3d> f_i_plus_R, vector<Eigen::Vector3d> e_i_L, vector<Eigen::Vector3d> e_i_R) {
+    void apply_control_forces_DUAL(CMD cmd_L, CMD cmd_R){
+        vector<CMD> cmd_all;
+        cmd_all.push_back(cmd_L);
+        cmd_all.push_back(cmd_R);
+        for (int j = 0; j < cmd_all.size(); j++) { // j = 0 left arm, j = 1 right arm
+            for (int i = 0; i < cmd_all[j].e_i.size(); i++) {
+                Eigen::Vector3d virt_hook = compose_p(p_O[j]) + R_O[j] * cmd_all[j].e_i[i];
+                api.applyExternalForce(actor[j], -1, btVector3(btScalar(cmd_all[j].f_i_plus[i](0)), btScalar(cmd_all[j].f_i_plus[i](1)), btScalar(cmd_all[j].f_i_plus[i](2))), btVector3(btScalar(virt_hook(0)), btScalar(virt_hook(1)), btScalar(virt_hook(2))), 0);
+            }
 
-        // Left ARM control
-        for (int i = 0; i < e_i_L.size(); i++) {
-            Eigen::Vector3d virt_hook = compose_p(p_O[0]) + R_O[0] * e_i_L[i];
-            api.applyExternalForce(actor[0], -1, btVector3(btScalar(f_i_plus_L[i](0)), btScalar(f_i_plus_L[i](1)), btScalar(f_i_plus_L[i](2))), btVector3(btScalar(virt_hook(0)), btScalar(virt_hook(1)), btScalar(virt_hook(2))), 0);
+            // Linear Damping force to help stabilise
+            api.applyExternalForce(actor[j], -1, -b * pdot_O[j], p_O[j], 0);
+
+            // Rotational Damping torque to stabilise the object
+            api.applyExternalTorque(actor[j], -1, -b_r * omega_O[j], 0);
         }
 
-        // Linear Damping force to help stabilise
-        api.applyExternalForce(actor[0], -1, -b * pdot_O[0], p_O[0], 0);
-
-        // Rotational Damping torque to stabilise the object
-        api.applyExternalTorque(actor[0], -1, -b_r * omega_O[0], 0);
-
-        // Right ARM control
-        for (int i = 0; i < e_i_R.size(); i++) {
-            Eigen::Vector3d virt_hook = compose_p(p_O[1]) + R_O[1] * e_i_R[i];
-            api.applyExternalForce(actor[1], -1, btVector3(btScalar(f_i_plus_R[i](0)), btScalar(f_i_plus_R[i](1)), btScalar(f_i_plus_R[i](2))), btVector3(btScalar(virt_hook(0)), btScalar(virt_hook(1)), btScalar(virt_hook(2))), 0);
-        }
-
-        // Linear Damping force to help stabilise
-        api.applyExternalForce(actor[1], -1, -b * pdot_O[1], p_O[1], 0);
-
-        // Rotational Damping torque to stabilise the object
-        api.applyExternalTorque(actor[1], -1, -b_r * omega_O[1], 0);
     }
 
     myBULLET(float time_step_in, float b_in, float b_r_in) {

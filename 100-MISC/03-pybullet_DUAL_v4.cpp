@@ -52,10 +52,6 @@ int main()
     ARM_R.quick_start(); // always needs to be done
     ARM_R.debug_getPOS(); // always needs to be done
 
-
-
-    
-
     // Impedance control parameters
     
     float b_r = 0.5;
@@ -79,7 +75,7 @@ int main()
         ARM_R.compute_f_cmd(SIM.O[1]); // need to make this a loop
 
         // Apply forces in simulation
-        SIM.apply_control_forces_DUAL(ARM_L.cmd.f_i_plus, ARM_R.cmd.f_i_plus, ARM_L.cmd.e_i, ARM_R.cmd.e_i);
+        SIM.apply_control_forces_DUAL(ARM_L.cmd, ARM_R.cmd);
 
         // Apply forces on handle
         ARM_L.render_W_cmd();
