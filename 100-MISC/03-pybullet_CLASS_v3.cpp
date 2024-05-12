@@ -14,11 +14,11 @@ int main()
 
     // Virtuose object attributes
     const char* myPORT = "127.0.0.1#53210";
-    float myFORCEFACTOR = 1.0f, mySPEEDFACTOR = 1.0f, myDT = 0.01f;
+    float myFORCEFACTOR = 1.0f, mySPEEDFACTOR = 1.0f, delta_t = 0.01f;
 
     // Virtuose object definition
-    float my_k = 10;
-    ARM RightARM("127.0.0.1#53210", myFORCEFACTOR, mySPEEDFACTOR, myDT, my_k);
+    float k = 10;
+    ARM RightARM("127.0.0.1#53210", myFORCEFACTOR, mySPEEDFACTOR, delta_t, k);
     RightARM.name = "RightARM";
     RightARM.quick_start(); // always needs to be done
     RightARM.debug_getPOS(); // always needs to be done
@@ -26,9 +26,9 @@ int main()
 
     // Impedance control parameters
     
-    float b_rot = 0.5;
-    float b_trn = 4;
-    myBULLET SIM(myDT, b_trn, b_rot);
+    float b_r = 0.5;
+    float b = 4;
+    myBULLET SIM(delta_t, b, b_r);
 
     // to be sent to Haption at the end - may consider making this part of the CMD structure?
     
@@ -52,7 +52,7 @@ int main()
      
         // Simulation step
         SIM.api.stepSimulation();
-        Sleep(myDT);
+        Sleep(delta_t);
     }
 
     // Haption clean up

@@ -29,8 +29,8 @@ int main()
     float myFORCEFACTOR_L = 1.0f, mySPEEDFACTOR_L = 1.0f;
 
     // Virtuose object definition
-    float my_k_L = 10;
-    ARM ARM_L("127.0.0.1#53210", myFORCEFACTOR_L, mySPEEDFACTOR_L, myDT, my_k_L);
+    float k_L = 10;
+    ARM ARM_L("127.0.0.1#53210", myFORCEFACTOR_L, mySPEEDFACTOR_L, myDT, k_L);
     ARM_L.name = "ARM_L";
     ARM_L.quick_start(); // always needs to be done
     ARM_L.debug_getPOS(); // always needs to be done
@@ -46,8 +46,8 @@ int main()
     float myFORCEFACTOR_R = 1.0f, mySPEEDFACTOR_R = 1.0f;
 
     // Virtuose object definition
-    float my_k_R = 10;
-    ARM ARM_R("127.0.0.1#53210", myFORCEFACTOR_R, mySPEEDFACTOR_R, myDT, my_k_R);
+    float k_R = 10;
+    ARM ARM_R("127.0.0.1#53210", myFORCEFACTOR_R, mySPEEDFACTOR_R, myDT, k_R);
     ARM_R.name = "ARM_R";
     ARM_R.quick_start(); // always needs to be done
     ARM_R.debug_getPOS(); // always needs to be done
@@ -58,9 +58,9 @@ int main()
 
     // Impedance control parameters
     
-    float b_rot = 0.5;
-    float b_trn = 4;
-    myBULLET SIM(myDT, b_trn, b_rot);
+    float b_r = 0.5;
+    float b = 4;
+    myBULLET SIM(myDT, b, b_r);
 
     // to be sent to Haption at the end - may consider making this part of the CMD structure?
     

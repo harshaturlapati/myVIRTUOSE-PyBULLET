@@ -5,7 +5,7 @@
 
 class myBULLET {
 public:
-    float time_step;
+    float delta_t;
     b3RobotSimulatorClientAPI_NoDirect api;
     b3PhysicsClientHandle client;
     b3RobotSimulatorClientAPI_InternalData data;
@@ -13,17 +13,15 @@ public:
     b3RobotSimulatorGetContactPointsArgs myC;
     b3ContactInformation contactInfo;
     int world, actor;
-    btVector3 pos_actor, pdot_actor, omega_actor;
-    btQuaternion quat_actor;
 
-    float b, br;
+    btVector3 p_O, pdot_O, omega_O;
+    btQuaternion quat_O;
+
+    float b, b_r;
 
     // Consider Eigen for lightweight rigid body dynamics computation
-    Eigen::Vector3d p_O;
     Eigen::Matrix3d R_O;
     Eigen::Matrix4d O;
-    Eigen::Vector4d quat_O;
-    //float quat_O[4];
 
     // RBDL vs Boost RL
 
@@ -39,7 +37,7 @@ public:
         data.m_guiHelper = 0;
         
         api.setInternalData(&data);
-        api.setTimeStep(time_step);
+        api.setTimeStep(delta_t);
         api.resetSimulation();
         //api.setGravity(btVector3(btScalar(0), btScalar(0), btScalar(-9.8)));
         api.setGravity(btVector3(btScalar(0), btScalar(0), btScalar(0)));
@@ -58,7 +56,6 @@ public:
         myC.m_linkIndexA = -1;
         myC.m_linkIndexB = -1;
 
-        
     }
 
     Eigen::Vector3d compose_p(btVector3 pos_actor_in) {
@@ -66,44 +63,32 @@ public:
         return p;
     }
 
-    Eigen::Vector4d compose_quat(btQuaternion quat_actor_in) {
-        Eigen::Vector4d quat;
-        quat(0) = quat_actor_in.getX();
-        quat(1) = quat_actor_in.getY();
-        quat(2) = quat_actor_in.getZ();
-        quat(3) = quat_actor_in.getW();
-        return quat;
-    }
-
     void getSIM_state() {
-        api.getBasePositionAndOrientation(actor, pos_actor, quat_actor);
-        api.getBaseVelocity(actor, pdot_actor, omega_actor);
+        api.getBasePositionAndOrientation(actor, p_O, quat_O);
+        api.getBaseVelocity(actor, pdot_O, omega_O);
 
-        quat_O = compose_quat(quat_actor);
-        R_O = R_frm_quat_v2(quat_O);
-        p_O = compose_p(pos_actor);
-        O = compose(p_O, R_O);
-
+        R_O = R_frm_quat_v3(quat_O);
+        O = compose_bt(p_O, R_O);
     }
 
     void apply_control_forces(vector<Eigen::Vector3d> f_i_plus, vector<Eigen::Vector3d> e_i) {
 
         for (int i = 0; i < e_i.size(); i++) {
-            Eigen::Vector3d virt_hook = p_O + R_O * e_i[i];
+            Eigen::Vector3d virt_hook = compose_p(p_O) + R_O * e_i[i];
             api.applyExternalForce(actor, -1, btVector3(btScalar(f_i_plus[i](0)), btScalar(f_i_plus[i](1)), btScalar(f_i_plus[i](2))), btVector3(btScalar(virt_hook(0)), btScalar(virt_hook(1)), btScalar(virt_hook(2))), 0);
         }
 
         // Linear Damping force to help stabilise
-        api.applyExternalForce(actor, -1, btVector3(btScalar(-b * pdot_actor[0]), btScalar(-b * pdot_actor[1]), btScalar(-b * pdot_actor[2])), btVector3(btScalar(p_O(0)), btScalar(p_O(1)), btScalar(p_O(2))), 0);
+        api.applyExternalForce(actor, -1, -b * pdot_O, p_O, 0);
 
         // Rotational Damping torque to stabilise the object
-        api.applyExternalTorque(actor, -1, btVector3(btScalar(-br * (omega_actor[0])), btScalar(-br* (omega_actor[1])), btScalar(-br* (omega_actor[2]))), 0);
+        api.applyExternalTorque(actor, -1, - b_r * omega_O, 0);
     }
 
-    myBULLET(float time_step_in, float b_in, float br_in) {
-        time_step = time_step_in;
+    myBULLET(float delta_t_in, float b_in, float b_r_in) {
+        delta_t = delta_t_in;
         b = b_in;
-        br = br_in;
+        b_r = b_r_in;
         init();
     }
 };
