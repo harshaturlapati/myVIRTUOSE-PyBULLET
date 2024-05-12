@@ -68,10 +68,10 @@ public:
 
     Eigen::Vector4d compose_quat(btQuaternion quat_actor_in) {
         Eigen::Vector4d quat;
-        quat(0) = quat_actor.getX();
-        quat(1) = quat_actor.getY();
-        quat(2) = quat_actor.getZ();
-        quat(3) = quat_actor.getW();
+        quat(0) = quat_actor_in.getX();
+        quat(1) = quat_actor_in.getY();
+        quat(2) = quat_actor_in.getZ();
+        quat(3) = quat_actor_in.getW();
         return quat;
     }
 
