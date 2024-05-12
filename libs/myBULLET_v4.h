@@ -14,14 +14,14 @@ public:
     b3RobotSimulatorGetContactPointsArgs myC;
     b3ContactInformation contactInfo;
     int world;
-    vector < int > actor;
-    vector < btVector3 > p_O, pdot_O, omega_O;
-    vector < btQuaternion > quat_O;
+    vector<int> actor;
+    vector<btVector3> p_O, pdot_O, omega_O;
+    vector<btQuaternion> quat_O;
 
     float b, b_r;
 
-    vector < Eigen::Matrix3d > R_O;
-    vector < Eigen::Matrix4d > O;
+    vector<Eigen::Matrix3d> R_O;
+    vector<Eigen::Matrix4d> O;
 
     void init() {
         b3PhysicsClientHandle client = b3ConnectSharedMemory(SHARED_MEMORY_KEY);
@@ -45,7 +45,6 @@ public:
         actor.push_back(api.loadURDF("cube.urdf")); // sphere2
         actor.push_back(api.loadURDF("cube.urdf")); // sphere2
 
-        //btQuaternion
 
         /* Later I'd like these to be also initiated from main() and taken in as arguments to api.resetBasePositionAndOrientation()
         vector <btVector3> p_O_init;
@@ -72,15 +71,6 @@ public:
     Eigen::Vector3d compose_p(btVector3 pos_actor_in) {
         Eigen::Vector3d p(pos_actor_in[0], pos_actor_in[1], pos_actor_in[2]);
         return p;
-    }
-
-    Eigen::Vector4d compose_quat(btQuaternion quat_actor_in) {
-        Eigen::Vector4d quat;
-        quat(0) = quat_actor_in.getX();
-        quat(1) = quat_actor_in.getY();
-        quat(2) = quat_actor_in.getZ();
-        quat(3) = quat_actor_in.getW();
-        return quat;
     }
 
     void getSIM_state() {
