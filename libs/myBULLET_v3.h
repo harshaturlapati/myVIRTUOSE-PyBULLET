@@ -22,7 +22,8 @@ public:
     Eigen::Vector3d p_O;
     Eigen::Matrix3d R_O;
     Eigen::Matrix4d O;
-    float quat_O[4];
+    Eigen::Vector4d quat_O;
+    //float quat_O[4];
 
     // RBDL vs Boost RL
 
@@ -60,17 +61,27 @@ public:
         
     }
 
+    Eigen::Vector3d compose_p(btVector3 pos_actor_in) {
+        Eigen::Vector3d p(pos_actor_in[0], pos_actor_in[1], pos_actor_in[2]);
+        return p;
+    }
+
+    Eigen::Vector4d compose_quat(btQuaternion quat_actor_in) {
+        Eigen::Vector4d quat;
+        quat(0) = quat_actor.getX();
+        quat(1) = quat_actor.getY();
+        quat(2) = quat_actor.getZ();
+        quat(3) = quat_actor.getW();
+        return quat;
+    }
+
     void getSIM_state() {
         api.getBasePositionAndOrientation(actor, pos_actor, quat_actor);
         api.getBaseVelocity(actor, pdot_actor, omega_actor);
 
-        quat_O[0] = quat_actor.getX();
-        quat_O[1] = quat_actor.getY();
-        quat_O[2] = quat_actor.getZ();
-        quat_O[3] = quat_actor.getW();
-
-        R_O = R_frm_quat(quat_O);
-        p_O = Eigen::Vector3d(pos_actor[0], pos_actor[1], pos_actor[2]);
+        quat_O = compose_quat(quat_actor);
+        R_O = R_frm_quat_v2(quat_O);
+        p_O = compose_p(pos_actor);
         O = compose(p_O, R_O);
 
     }
