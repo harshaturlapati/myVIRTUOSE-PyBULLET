@@ -43,7 +43,7 @@ public:
 
         // Later I'd like this to be a for loop which takes in input from main() to initiate different objects as different actors - const char* inputs like "cube.urdf"
         actor.push_back(api.loadURDF("cube.urdf")); // sphere2
-        actor.push_back(api.loadURDF("cube.urdf")); // sphere2
+        actor.push_back(api.loadURDF("sphere2.urdf")); // sphere2
 
 
         /* Later I'd like these to be also initiated from main() and taken in as arguments to api.resetBasePositionAndOrientation()
@@ -58,6 +58,17 @@ public:
 
         for (int i = 0; i < actor.size(); i++){
             api.changeDynamics(actor[i], -1, dyn_args);
+            btVector3 p, pdot, omega;
+            btQuaternion quat;
+            Eigen::Matrix3d R;
+            Eigen::Matrix4d T;
+
+            quat_O.push_back(quat);
+            p_O.push_back(p);
+            pdot_O.push_back(pdot);
+            omega_O.push_back(omega);
+            R_O.push_back(R);
+            O.push_back(T);
         }
         
         //myC.m_bodyUniqueIdA = actor; // VERY IMPORTANT to have the actor as bodyA.
@@ -75,6 +86,7 @@ public:
 
     void getSIM_state() {
         for (int i = 0; i < actor.size(); i++) {
+            
             api.getBasePositionAndOrientation(actor[i], p_O[i], quat_O[i]);
             api.getBaseVelocity(actor[i], pdot_O[i], omega_O[i]);
 

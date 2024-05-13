@@ -25,12 +25,12 @@ int main()
     myUDP_L.setup_UDP();
 
     // Virtuose object attributes
-    const char* myPORT_L = "127.0.0.1#53210";
+    const char* myPORT_L = "127.0.0.1#53209";
     float myFORCEFACTOR_L = 1.0f, mySPEEDFACTOR_L = 1.0f;
 
     // Virtuose object definition
-    float k_L = 10;
-    ARM ARM_L("127.0.0.1#53210", myFORCEFACTOR_L, mySPEEDFACTOR_L, myDT, k_L);
+    float k_L = 20;
+    ARM ARM_L("127.0.0.1#53209", myFORCEFACTOR_L, mySPEEDFACTOR_L, myDT, k_L);
     ARM_L.name = "ARM_L";
     ARM_L.quick_start(); // always needs to be done
     ARM_L.debug_getPOS(); // always needs to be done
@@ -46,7 +46,7 @@ int main()
     float myFORCEFACTOR_R = 1.0f, mySPEEDFACTOR_R = 1.0f;
 
     // Virtuose object definition
-    float k_R = 10;
+    float k_R = 20;
     ARM ARM_R("127.0.0.1#53210", myFORCEFACTOR_R, mySPEEDFACTOR_R, myDT, k_R);
     ARM_R.name = "ARM_R";
     ARM_R.quick_start(); // always needs to be done
@@ -55,7 +55,7 @@ int main()
     // Impedance control parameters
     
     float b_r = 0.5;
-    float b = 4;
+    float b = 2;
     myBULLET SIM(myDT, b, b_r);
 
     // to be sent to Haption at the end - may consider making this part of the CMD structure?
@@ -77,7 +77,7 @@ int main()
         // Apply forces in simulation
         SIM.apply_control_forces_DUAL(ARM_L.cmd, ARM_R.cmd);
 
-        // Apply forces on handle
+        //// Apply forces on handle
         ARM_L.render_W_cmd();
         ARM_R.render_W_cmd();
      
