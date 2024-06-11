@@ -42,7 +42,7 @@ public:
         world = api.loadURDF("plane.urdf");
 
         // Later I'd like this to be a for loop which takes in input from main() to initiate different objects as different actors - const char* inputs like "cube.urdf"
-        actor.push_back(api.loadURDF("cube.urdf")); // sphere2
+        actor.push_back(api.loadURDF("sphere2.urdf")); // sphere2
         actor.push_back(api.loadURDF("sphere2.urdf")); // sphere2
 
 
