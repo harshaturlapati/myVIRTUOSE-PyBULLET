@@ -106,6 +106,7 @@ public:
     int duration;
     std::string exp_folder;
     char EXEPATH[MAX_PATH];
+    std::string ROBOT_NAME;
 
     std::string GetTimestamp(time_t now) {
         tm* ltm = localtime(&now);
@@ -206,10 +207,12 @@ public:
        //
        std::string timestamp = GetTimestamp(now_t);
        //
-       std::ofstream log_file(base_path + file_name + timestamp);
+       std::ofstream log_file(base_path + file_name + "_" + ROBOT_NAME + "_" + timestamp);
        //
        	if (log_file.is_open())
        	{
+            log_file << "Robot NAME:" << ROBOT_NAME << "\n";
+
        		log_file << "Time(ms),Time(s),Unix_epoch(ns),"
        			<< "UDP_f1,UDP_f2,UDP_f3,UDP_f4,UDP_f5,UDP_f6" << ","
        			<< "X,Y,Z,qx,qy,qz,qw" << ","
@@ -246,6 +249,11 @@ public:
 
     myWRITE_VIRT_LOG(int duration_in) {
         duration = duration_in;
+    }
+
+    myWRITE_VIRT_LOG(int duration_in, std::string ROBOT_NAME_in) { // 2024-11-06 addition : Constructor to specify ROBOT_NAME in the log
+        duration = duration_in;
+        ROBOT_NAME = ROBOT_NAME_in;
     }
    
     
