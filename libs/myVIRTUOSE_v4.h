@@ -35,6 +35,12 @@ public:                                 // Access specifier
             return my_cmd;
         }
 
+        void reset_f_i_plus() { // to reset f_i_plus to 0
+            for (int i = 0; i < cmd.e_i.size(); i++) {
+                cmd.f_i_plus[i] << 0, 0, 0;
+            }
+        }
+
         void compute_f_cmd(Eigen::Matrix4d O) {
           f_cmd << 0, 0, 0;
           tau_cmd << 0, 0, 0;

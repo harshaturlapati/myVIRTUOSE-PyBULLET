@@ -4,7 +4,9 @@
 #include <Eigen/Dense>
 #include <vector> 
 
-class myBULLET {
+// Specifically built for dual arm...
+
+class myBULLET_DUAL {
 public:
     float time_step;
     b3RobotSimulatorClientAPI_NoDirect api;
@@ -114,7 +116,7 @@ public:
 
     }
 
-    myBULLET(float time_step_in, float b_in, float b_r_in) {
+    myBULLET_DUAL(float time_step_in, float b_in, float b_r_in) {
         time_step = time_step_in;
         b = b_in;
         b_r = b_r_in;

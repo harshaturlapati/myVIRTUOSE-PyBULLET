@@ -1,8 +1,8 @@
 #include <myINCLUDES.h>                 // baked in
 #include "VirtuoseAPI.h"                // comes from Haption
-#include <myVIRTUOSE_v4.h>              // including logger inside it
+#include <myVIRTUOSE_v5.h>              
 #include <myVIRTUOSE_UDP.h>             // baked in
-#include <myBULLET_v3.h>
+#include <myBULLET_v5.h>
 
 int main()
 {
@@ -52,8 +52,8 @@ int main()
 
         if (data_count < 2000)
         {       // Apply forces in simulation
-                SIM.apply_control_forces(RightARM.cmd.f_i_plus, RightARM.cmd.e_i);
-                std::cout << "Applying forces in simulation" << std::endl;
+            SIM.apply_control_forces(RightARM.cmd.f_i_plus, RightARM.cmd.e_i);
+            std::cout << "Applying forces in simulation" << std::endl;
         }
         else
         {

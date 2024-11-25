@@ -29,7 +29,7 @@ public:
     void setTau(float tau_input[3]) {
         for (int i = 3; i < 6; i++)
         {
-            W_safe[i] = tau_input[i-3];
+            W_safe[i] = tau_input[i - 3];
         }
     }
 
