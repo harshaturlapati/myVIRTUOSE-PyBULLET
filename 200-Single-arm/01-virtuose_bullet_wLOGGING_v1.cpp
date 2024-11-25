@@ -16,7 +16,7 @@ int main()
     float myFORCEFACTOR = 1.0f, mySPEEDFACTOR = 1.0f, delta_t = 0.01f;
 
     // Virtuose object definition
-    float k = 10;
+    float k = 50;
     ARM RightARM("127.0.0.1#53210", myFORCEFACTOR, mySPEEDFACTOR, delta_t, k);
     RightARM.name = "RightARM";
     RightARM.quick_start(); // always needs to be done

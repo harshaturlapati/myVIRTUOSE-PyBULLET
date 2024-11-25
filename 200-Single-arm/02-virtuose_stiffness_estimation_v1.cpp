@@ -16,7 +16,7 @@ int main()
     float myFORCEFACTOR = 1.0f, mySPEEDFACTOR = 1.0f, delta_t = 0.01f;
 
     // Virtuose object definition
-    float k = 10;
+    float k = 50;
     ARM RightARM("127.0.0.1#53210", myFORCEFACTOR, mySPEEDFACTOR, delta_t, k);
     RightARM.name = "RightARM";
     RightARM.quick_start(); // always needs to be done
@@ -48,17 +48,17 @@ int main()
         SIM.getSIM_state();
 
         // Computer f_i_plus
-        RightARM.compute_f_cmd(SIM.O);
+        RightARM.compute_f_cmd_v2(SIM.O);
 
         if (data_count < 2000)
         {       // Apply forces in simulation
-            SIM.apply_control_forces(RightARM.cmd.f_i_plus, RightARM.cmd.e_i);
+            SIM.apply_control_forces(RightARM.cmd.f_s_plus, RightARM.cmd.c_s_tilde);
             std::cout << "Applying forces in simulation" << std::endl;
         }
         else
         {
-            RightARM.reset_f_i_plus();
-            SIM.apply_control_forces(RightARM.cmd.f_i_plus, RightARM.cmd.e_i);
+            RightARM.reset_f_s_plus();
+            SIM.apply_control_forces(RightARM.cmd.f_s_plus, RightARM.cmd.c_s_tilde);
         }
 
         // Write to log - MAKE SURE TO KEEP THIS BEFORE render_W_cmd(), since it resets W_cmd to 0

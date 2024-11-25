@@ -71,11 +71,11 @@ public:
         O = compose_bt(p_O, R_O);
     }
 
-    void apply_control_forces(vector<Eigen::Vector3d> f_i_plus, vector<Eigen::Vector3d> e_i) {
+    void apply_control_forces(vector<Eigen::Vector3d> f_s_plus, vector<Eigen::Vector3d> c_s) {
 
-        for (int i = 0; i < e_i.size(); i++) {
-            Eigen::Vector3d virt_hook = compose_p(p_O) + R_O * e_i[i];
-            api.applyExternalForce(actor, -1, btVector3(btScalar(f_i_plus[i](0)), btScalar(f_i_plus[i](1)), btScalar(f_i_plus[i](2))), btVector3(btScalar(virt_hook(0)), btScalar(virt_hook(1)), btScalar(virt_hook(2))), 0);
+        for (int s = 0; s < c_s.size(); s++) {
+            Eigen::Vector3d virt_hook = compose_p(p_O) + R_O * c_s[s];
+            api.applyExternalForce(actor, -1, btVector3(btScalar(f_s_plus[s](0)), btScalar(f_s_plus[s](1)), btScalar(f_s_plus[s](2))), btVector3(btScalar(virt_hook(0)), btScalar(virt_hook(1)), btScalar(virt_hook(2))), 0);
         }
 
         // Linear Damping force to help stabilise

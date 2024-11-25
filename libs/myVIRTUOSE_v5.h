@@ -3,7 +3,7 @@
 #include "myGEOMETRY/myROT.h"
 #include "myGEOMETRY/mySE3.h"
 #include <vector> 
-#include <myVirtuose_CMD_v3.h>
+#include <myVirtuose_CMD_v5.h>
 
 using namespace std;
 
@@ -24,9 +24,7 @@ public:                                 // Access specifier
     float identity[7] = { 0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,1.0f };
     float worldisbelow[7] = { 0.0f,0.0f,1.0f,0.0f,0.0f,0.0f,1.0f };
 
-    float k;
-
-    CMD cmd;
+    CMD cmd; // contains definitions of k, r, e_i, f_s, 
 
     // active
     CMD set_CMD(float k_in) { // needed to initialise empty class cmd in the public context of MyVIRTUOSE
@@ -35,22 +33,43 @@ public:                                 // Access specifier
         return my_cmd;
     }
 
-    void reset_f_i_plus() { // to reset f_i_plus to 0
-        for (int i = 0; i < cmd.e_i.size(); i++) {
-            cmd.f_i_plus[i] << 0, 0, 0;
+    void reset_f_s_plus() { // to reset f_s_plus to 0
+        for (int i = 0; i < cmd.E.size(); i++) {
+            cmd.f_s_plus[i] << 0, 0, 0;
         }
     }
 
-    void compute_f_cmd(Eigen::Matrix4d O) {
+    //void compute_f_cmd(Eigen::Matrix4d O) {
+    //    f_cmd << 0, 0, 0;
+    //    tau_cmd << 0, 0, 0;
+    //    //std::cout << cmd.k << std::endl;
+    //    for (int i = 0; i < cmd.e_i.size(); i++) {
+    //        cmd.f_s_plus[i] = cmd.k * cmd.Pi * (H * cmd.e_i_tilde[i] - O * cmd.e_i_tilde[i]);
+
+    //        f_cmd = f_cmd - cmd.f_s_plus[i];
+
+    //        tau_cmd = tau_cmd + my_cross(R_H * cmd.e_i[i], -cmd.f_s_plus[i]);
+    //    }
+
+    //    W_cmd[0] = f_cmd(0);
+    //    W_cmd[1] = f_cmd(1);
+    //    W_cmd[2] = f_cmd(2);
+
+    //    W_cmd[3] = tau_cmd(0);
+    //    W_cmd[4] = tau_cmd(1);
+    //    W_cmd[5] = tau_cmd(2);
+    //}
+
+    void compute_f_cmd_v2(Eigen::Matrix4d O) {
         f_cmd << 0, 0, 0;
         tau_cmd << 0, 0, 0;
         //std::cout << cmd.k << std::endl;
-        for (int i = 0; i < cmd.e_i.size(); i++) {
-            cmd.f_i_plus[i] = cmd.k * cmd.Pi * (H * cmd.e_i_tilde[i] - O * cmd.e_i_tilde[i]);
+        for (int s = 0; s < cmd.E.size(); s++) {
+            cmd.f_s_plus[s] = cmd.k * cmd.Pi * (H * cmd.h_s_tilde_homgen[s] - O * cmd.c_s_tilde_homgen[s]);
 
-            f_cmd = f_cmd - cmd.f_i_plus[i];
+            f_cmd = f_cmd - cmd.f_s_plus[s];
 
-            tau_cmd = tau_cmd + my_cross(R_H * cmd.e_i[i], -cmd.f_i_plus[i]);
+            tau_cmd = tau_cmd + my_cross(R_H * cmd.h_s_tilde[s], -cmd.f_s_plus[s]);
         }
 
         W_cmd[0] = f_cmd(0);
@@ -61,6 +80,7 @@ public:                                 // Access specifier
         W_cmd[4] = tau_cmd(1);
         W_cmd[5] = tau_cmd(2);
     }
+
 
     void getquat() {
         quat[0] = X[3];
@@ -205,16 +225,14 @@ public:                                 // Access specifier
         forcefactor = forcefactor_input;
         speedfactor = speedfactor_input;
 
-        k = 0;
-        cmd = set_CMD(k);
+        cmd = set_CMD(0);
     }
 
     MyVIRTUOSE(const char* port_input)
     {   // Constructor 2  declaration
         PORT = port_input;
 
-        k = 0;
-        cmd = set_CMD(k);
+        cmd = set_CMD(0);
     }
 
     MyVIRTUOSE(const char* port_input, float forcefactor_input, float speedfactor_input, float dt_input, float k_input)
@@ -226,8 +244,7 @@ public:                                 // Access specifier
         forcefactor = forcefactor_input;
         speedfactor = speedfactor_input;
 
-        k = k_input;
-        cmd = set_CMD(k);
+        cmd = set_CMD(k_input);
     }
 
 };
