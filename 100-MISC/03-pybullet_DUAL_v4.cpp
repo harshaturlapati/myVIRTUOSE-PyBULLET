@@ -3,7 +3,7 @@
 #include <myVIRTUOSE_v3.h>              // baked in
 #include <myVIRTUOSE_UDP.h>             // baked in
 #include <myVIRTUOSE_LOGGING.h>         // baked in
-#include <myBULLET_v4.h>
+#include <myBULLET_DUAL.h>
 
 
 int main()
@@ -56,7 +56,7 @@ int main()
     
     float b_r = 0.5;
     float b = 2;
-    myBULLET SIM(myDT, b, b_r);
+    myBULLET_DUAL SIM(myDT, b, b_r);
 
     // to be sent to Haption at the end - may consider making this part of the CMD structure?
     

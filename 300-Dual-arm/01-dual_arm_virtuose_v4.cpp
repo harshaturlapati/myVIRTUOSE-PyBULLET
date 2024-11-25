@@ -3,7 +3,7 @@
 #include <myVIRTUOSE_v3.h>              // baked in
 #include <myVIRTUOSE_UDP.h>             // baked in
 #include <myVIRTUOSE_LOGGING.h>         // baked in
-#include <myBULLET_DUAL_v4.h>
+#include <myBULLET_DUAL.h>
 
 
 int main()
