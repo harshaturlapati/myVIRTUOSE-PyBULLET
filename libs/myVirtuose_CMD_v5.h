@@ -61,8 +61,9 @@ public:
         }
         else
         {
-            resetTau();
-            std::cout << "unsafe" << std::endl;
+            //resetTau();
+            setTau(tau_input);
+            std::cout << "unsafe but still setting the torque" << std::endl;
         }
     }
 
@@ -137,7 +138,7 @@ public:
 
     CMD() { // default constructor
         tau2_limit = 4;
-        r = 0.1;
+        r = 0.5;
         set_e_i_default();
         set_c_s_h_s_default();
         for (int i = 0; i < 6; i++)
@@ -148,7 +149,7 @@ public:
 
     CMD(float k_input) {
         tau2_limit = 4;
-        r = 0.1;
+        r = 0.5;
         k = k_input;
         set_e_i_default();
         set_c_s_h_s_default();

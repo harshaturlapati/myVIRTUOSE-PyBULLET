@@ -16,11 +16,16 @@ int main()
     float myFORCEFACTOR = 1.0f, mySPEEDFACTOR = 1.0f, delta_t = 0.01f;
 
     // Virtuose object definition
-    float k = 50;
+    float k = 20;
     ARM RightARM("127.0.0.1#53210", myFORCEFACTOR, mySPEEDFACTOR, delta_t, k);
     RightARM.name = "RightARM";
     RightARM.quick_start(); // always needs to be done
     RightARM.debug_getPOS(); // always needs to be done
+
+    // Reduce the stiffness, increase the r
+    // Clamp the Haption down
+    // The torques are currently comparable to damping - this is a problem
+    // Increasing the r alone will help get more torques for the same linear stiffness
 
 
     // Impedance control parameters
