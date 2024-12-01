@@ -19,6 +19,7 @@ public:                                 // Access specifier
     Eigen::Matrix4d H;
 
     float W_cmd[6] = { 0.0f,0.0f,0.0f,0.0f,0.0f,0.0f };
+    float W_fbk[6] = { 0.0f,0.0f,0.0f,0.0f,0.0f,0.0f };
     const char* PORT;                                       // myAttributes
     float forcefactor, speedfactor, dt;                     // force factor, speed factor, and sampling rate - VERY IMPORTANT
     float identity[7] = { 0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,1.0f };
@@ -131,6 +132,7 @@ public:                                 // Access specifier
     void sendCMD_f(float f_input[6]) {
         set_f(f_input);
         virtSetForce(VC, W_cmd);
+        virtSetForce(VC, W_fbk);
         //std::cout << f[0] << f[1] << f[2] << f[3] << f[4] << f[5] << std::endl;
         // reset force to 0 - after every issued command - VERY VERY IMPORTANT if UDP drops out... - discuss with dc.
         for (int i = 0; i < 6; i++) {

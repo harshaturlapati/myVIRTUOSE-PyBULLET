@@ -16,6 +16,7 @@ public:
     int64_t*                unix_epoch;
     float**                 UDP_f_log;
     float**                 force_log;
+    float**                 force_fbk_log;
     float**                 Virtuose_POS_log;
 
     int64_t GetTickUs()
@@ -63,6 +64,31 @@ public:
         }
     }
 
+    void write2LOG_v2(int data_count_in, float position[7], float force[6], float force_fbk[6], float UDP_f[6])
+    {
+        data_count = data_count_in;
+
+        // Data logging starts
+
+        time_log[data_count] = GetTickUs();
+
+        unix_epoch[data_count] = timestamp; // Make sure GetTickUs() is called before timestamp is recorded into unix_epoch.
+
+        // Didn't work - figure out the pointers                                   
+        //std::cout << access_my_nD(UDP_f_log, 0, 0) << std::endl;
+
+        for (int i = 0; i < dim_CART; i++)
+        {
+            Virtuose_POS_log[data_count][i] = position[i];
+        }
+
+        for (int i = 0; i < dim_f; i++)
+        {
+            force_log[data_count][i] = force[i];
+            force_fbk_log[data_count][i] = force_fbk[i];
+            UDP_f_log[data_count][i] = UDP_f[i];
+        }
+    }
 
     // Some how the following tricks didn't work in initialising the nD arrays using functions
 
@@ -93,6 +119,10 @@ public:
         force_log = new float* [arr_length];
         for (int i = 0; i < arr_length; i++)
             force_log[i] = new float[dim_f];
+
+        force_fbk_log = new float* [arr_length];
+        for (int i = 0; i < arr_length; i++)
+            force_fbk_log[i] = new float[dim_f];
 
         Virtuose_POS_log = new float* [arr_length];
         for (int i = 0; i < arr_length; i++)
@@ -217,6 +247,7 @@ public:
        			<< "UDP_f1,UDP_f2,UDP_f3,UDP_f4,UDP_f5,UDP_f6" << ","
        			<< "X,Y,Z,qx,qy,qz,qw" << ","
        			<< "f1,f2,f3,f4,f5,f6" << ","
+                << "f1_fbk,f2_fbk,f3_fbk,f4_fbk,f5_fbk,f6_fbk" << ","
        			<< "Index\n";
        
        		for (int i = 0; i < duration * 1000 && i < DATA.data_count - 1; ++i)
@@ -240,6 +271,11 @@ public:
        			{
        				log_file << DATA.force_log[i][j] << ",";
        			}
+
+                for (int j = 0; j < DATA.dim_f; ++j)
+                {
+                    log_file << DATA.force_fbk_log[i][j] << ",";
+                }
        
        			log_file << i << "\n";
        		}
