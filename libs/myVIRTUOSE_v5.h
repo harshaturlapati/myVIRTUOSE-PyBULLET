@@ -132,7 +132,7 @@ public:                                 // Access specifier
     void sendCMD_f(float f_input[6]) {
         set_f(f_input);
         virtSetForce(VC, W_cmd);
-        virtSetForce(VC, W_fbk);
+        virtGetForce(VC, W_fbk);
         //std::cout << f[0] << f[1] << f[2] << f[3] << f[4] << f[5] << std::endl;
         // reset force to 0 - after every issued command - VERY VERY IMPORTANT if UDP drops out... - discuss with dc.
         for (int i = 0; i < 6; i++) {
@@ -145,6 +145,7 @@ public:                                 // Access specifier
         cmd.check_safety(W_cmd); // Check force and torque limits before rendering
 
         virtSetForce(VC, cmd.W_safe); // Uncomment to render
+        virtGetForce(VC, W_fbk);
         // 
         //std::cout << f[0] << f[1] << f[2] << f[3] << f[4] << f[5] << std::endl;
         // reset force to 0 - after every issued command - VERY VERY IMPORTANT if UDP drops out... - discuss with dc.
