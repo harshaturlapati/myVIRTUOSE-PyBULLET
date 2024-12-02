@@ -17,6 +17,7 @@ public:                                 // Access specifier
     Eigen::Vector3d p_H, f_cmd, tau_cmd;
     Eigen::Matrix3d R_H;
     Eigen::Matrix4d H;
+    int get_force_flag = 0;
 
     float W_cmd[6] = { 0.0f,0.0f,0.0f,0.0f,0.0f,0.0f };
     float W_fbk[6] = { 0.0f,0.0f,0.0f,0.0f,0.0f,0.0f };
@@ -132,7 +133,7 @@ public:                                 // Access specifier
     void sendCMD_f(float f_input[6]) {
         set_f(f_input);
         virtSetForce(VC, W_cmd);
-        virtGetForce(VC, W_fbk);
+        //virtGetForce(VC, W_fbk);
         //std::cout << f[0] << f[1] << f[2] << f[3] << f[4] << f[5] << std::endl;
         // reset force to 0 - after every issued command - VERY VERY IMPORTANT if UDP drops out... - discuss with dc.
         for (int i = 0; i < 6; i++) {
@@ -145,7 +146,9 @@ public:                                 // Access specifier
         cmd.check_safety(W_cmd); // Check force and torque limits before rendering
 
         virtSetForce(VC, cmd.W_safe); // Uncomment to render
-        virtGetForce(VC, W_fbk);
+        //virtGetForce(VC, W_fbk);
+
+        std::cout << virtGetErrorCode(VC) << std::endl;
         // 
         //std::cout << f[0] << f[1] << f[2] << f[3] << f[4] << f[5] << std::endl;
         // reset force to 0 - after every issued command - VERY VERY IMPORTANT if UDP drops out... - discuss with dc.

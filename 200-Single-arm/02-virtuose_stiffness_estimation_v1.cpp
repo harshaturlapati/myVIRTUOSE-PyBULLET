@@ -67,7 +67,7 @@ int main()
         }
 
         // Write to log - MAKE SURE TO KEEP THIS BEFORE render_W_cmd(), since it resets W_cmd to 0
-        RightARM_LOG.write2LOG_v2(data_count, RightARM.X, RightARM.W_cmd, RightARM.W_fbk, myUDP.UDP_f);
+        RightARM_LOG.write2LOG(data_count, RightARM.X, RightARM.W_cmd, myUDP.UDP_f);
 
         // Apply forces on handle
         RightARM.render_W_cmd();
