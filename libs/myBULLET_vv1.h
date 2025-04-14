@@ -32,32 +32,32 @@ public:
 
     void init() {
 
-        //// Initiate PyBullet using system calls
-        //cout << "Starting pybullet..." << endl;
-        //const char* command = "python -m pybullet_utils.runServer";
+        // Initiate PyBullet using system calls
+        cout << "Starting pybullet..." << endl;
+        const char* command = "python -m pybullet_utils.runServer";
 
-        //STARTUPINFO si = { sizeof(STARTUPINFO) };
+        STARTUPINFO si = { sizeof(STARTUPINFO) };
 
-        //if (CreateProcess(
-        //    NULL,              // Application name
-        //    (LPSTR)command,    // Command to execute
-        //    NULL,              // Process security attributes
-        //    NULL,              // Thread security attributes
-        //    FALSE,             // Inherit handles
-        //    CREATE_NEW_CONSOLE, // Open in a new console window
-        //    NULL,              // Environment
-        //    NULL,              // Current directory
-        //    &si,               // Startup information
-        //    &pi                // Process information
-        //)) {
-        //    cout << "PyBullet is started..." << endl;
-        //}
-        //else {
-        //    cerr << "Error executing command: " << GetLastError() << "\n";
-        //    exit(EXIT_FAILURE);  // Or handle the error as needed
-        //}
-        //Sleep(1000);
-        //// Initiate PyBullet using system calls
+        if (CreateProcess(
+            NULL,              // Application name
+            (LPSTR)command,    // Command to execute
+            NULL,              // Process security attributes
+            NULL,              // Thread security attributes
+            FALSE,             // Inherit handles
+            CREATE_NEW_CONSOLE, // Open in a new console window
+            NULL,              // Environment
+            NULL,              // Current directory
+            &si,               // Startup information
+            &pi                // Process information
+        )) {
+            cout << "PyBullet is started..." << endl;
+        }
+        else {
+            cerr << "Error executing command: " << GetLastError() << "\n";
+            exit(EXIT_FAILURE);  // Or handle the error as needed
+        }
+        Sleep(1000);
+        // Initiate PyBullet using system calls
 
         b3PhysicsClientHandle client = b3ConnectSharedMemory(SHARED_MEMORY_KEY);
         if (!b3CanSubmitCommand(client))
@@ -75,7 +75,7 @@ public:
         //api.setGravity(btVector3(btScalar(0), btScalar(0), btScalar(-9.8)));
         api.setGravity(btVector3(btScalar(0), btScalar(0), btScalar(0)));
         world = api.loadURDF("plane.urdf");
-        actor = api.loadURDF("cube_NEW.urdf"); // sphere2
+        actor = api.loadURDF("cube.urdf"); // sphere2
 
         //btQuaternion
 
@@ -118,19 +118,23 @@ public:
         api.applyExternalTorque(actor, -1, - b_r * omega_O, 0);
     }
 
-    //// Close PyBullet using system calls
-    //void cleanupPyBulletServer(PROCESS_INFORMATION& pi) {
-    //    // Clean up handles
-    //    if (TerminateProcess(pi.hProcess, 0)) {
-    //        std::cout << "PyBullet server terminated successfully.\n";
-    //    }
-    //    else {
-    //        std::cerr << "Error terminating the process: " << GetLastError() << "\n";
-    //    }
-    //    CloseHandle(pi.hProcess);
-    //    CloseHandle(pi.hThread);
-    //    std::cout << "Handles closed.\n";
-    //}
+    // Close PyBullet using system calls
+    void cleanupPyBulletServer(PROCESS_INFORMATION& pi) {
+        // Clean up handles
+        if (TerminateProcess(pi.hProcess, 0)) {
+            std::cout << "PyBullet server terminated successfully.\n";
+        }
+        else {
+            std::cerr << "Error terminating the process: " << GetLastError() << "\n";
+        }
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+        std::cout << "Handles closed.\n";
+    }
+
+    void close() {
+        cleanupPyBulletServer(pi);
+    }
 
     myBULLET(float delta_t_in, float b_in, float b_r_in) {
         delta_t = delta_t_in;

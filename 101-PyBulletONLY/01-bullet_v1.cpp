@@ -2,70 +2,44 @@
 #include "VirtuoseAPI.h"                // comes from Haption
 #include <myVIRTUOSE_v4.h>              // including logger inside it
 #include <myVIRTUOSE_UDP.h>             // baked in
-#include <myBULLET_v3.h>
+#include <myBULLET_vv1.h>
 
 int main()
 {
-    // UDP class object
-    myVIRTUOSE_UDP myUDP(27017, 27018, "127.0.0.1", "127.0.0.1");
-    float input_pos[7] = { 0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,1.0f };
-    myUDP.setup_UDP();
+    vector<Eigen::Vector3d> e_i, f_i_plus;
 
-    // Virtuose object attributes
-    const char* myPORT = "127.0.0.1#53210";
-    float myFORCEFACTOR = 1.0f, mySPEEDFACTOR = 1.0f, delta_t = 0.01f;
+    
+    f_i_plus.push_back({ 0.0f,0.0f,0.0f });
+    e_i.push_back(Eigen::Vector3d(0, 0, 0)); // Seems this is VERY important
+    f_i_plus.push_back({ 0.0f,0.0f,0.0f });
+    e_i.push_back(Eigen::Vector3d(0.1, 0, 0));
+    f_i_plus.push_back({ 0.0f,0.0f,0.0f });
+    e_i.push_back(Eigen::Vector3d(-0.1, 0, 0));
+    f_i_plus.push_back({ 0.0f,0.0f,0.0f });
+    e_i.push_back(Eigen::Vector3d(0, 0.1, 0));
+    f_i_plus.push_back({ 0.0f,0.0f,0.0f });
+    e_i.push_back(Eigen::Vector3d(0, -0.1, 0));
+    f_i_plus.push_back({ 0.0f,0.0f,0.0f });
+    e_i.push_back(Eigen::Vector3d(0, 0, 0.1));
+    f_i_plus.push_back({ 0.0f,0.0f,0.0f });
+    e_i.push_back(Eigen::Vector3d(0, 0, -0.1)); // can add more e_i here if you want...
 
-    // Virtuose object definition
-    float k = 50;
-    ARM RightARM("127.0.0.1#53210", myFORCEFACTOR, mySPEEDFACTOR, delta_t, k);
-    RightARM.name = "RightARM";
-    RightARM.quick_start(); // always needs to be done
-    RightARM.debug_getPOS(); // always needs to be done
-
-
+    float delta_t = 0.01;
     // Impedance control parameters
 
     float b_r = 0.5;
     float b = 2;
     myBULLET SIM(delta_t, b, b_r);
 
-    // to be sent to Haption at the end - may consider making this part of the CMD structure?
-
-    // Initialising logger
-    int duration = 1000;
-    myVIRTUOSE_LOG RightARM_LOG(duration); // duration input
-    myWRITE_VIRT_LOG Right_LOG_writer(duration, RightARM.name);
-
     int data_count = 0;
 
     printf("Press Q to exit loop\n");
     while (!(GetKeyState('Q') & 0x8000)) {
 
-        // Query Haption state and output through UDP
-        myUDP.UDP_send_recv_v3(RightARM.getPOS()); // getPOS() computes frame H
-
         // Compute object frame O
         SIM.getSIM_state();
 
-        // Computer f_i_plus
-        RightARM.compute_f_cmd(SIM.O);
-
-        if (data_count < 2000)
-        {       // Apply forces in simulation
-            SIM.apply_control_forces(RightARM.cmd.f_i_plus, RightARM.cmd.e_i);
-            std::cout << "Applying forces in simulation" << std::endl;
-        }
-        else
-        {
-            RightARM.reset_f_i_plus();
-            SIM.apply_control_forces(RightARM.cmd.f_i_plus, RightARM.cmd.e_i);
-        }
-
-        // Write to log - MAKE SURE TO KEEP THIS BEFORE render_W_cmd(), since it resets W_cmd to 0
-        RightARM_LOG.write2LOG(data_count, RightARM.X, RightARM.W_cmd, myUDP.UDP_f);
-
-        // Apply forces on handle
-        RightARM.render_W_cmd();
+        SIM.apply_control_forces(f_i_plus, e_i);
 
         // Simulation step
         SIM.api.stepSimulation();
@@ -74,10 +48,7 @@ int main()
         Sleep(delta_t);
     }
 
-    // Haption clean up
-    Right_LOG_writer.write2FILE(RightARM_LOG);
-    myUDP.cleanup();
-    RightARM.quick_stop();
+    SIM.close();
 
     return 0;
 }
