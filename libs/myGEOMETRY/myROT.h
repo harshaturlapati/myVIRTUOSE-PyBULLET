@@ -32,7 +32,7 @@ Eigen::Matrix3d R_frm_quat(float X[4]) {
     }
     else
     {
-        a11 = (w * w + x * x + y * y - z * z) / norm_quat;
+        a11 = (w * w + x * x - y * y - z * z) / norm_quat;
         a12 = 2 * (x * y - w * z) / norm_quat;
         a13 = 2 * (x * z + w * y) / norm_quat;
         a21 = 2 * (x * y + w * z) / norm_quat;
@@ -68,7 +68,7 @@ Eigen::Matrix3d R_frm_quat_v2(Eigen::Vector4d X) {
     }
     else
     {
-        a11 = (w * w + x * x + y * y - z * z) / norm_quat;
+        a11 = (w * w + x * x - y * y - z * z) / norm_quat;
         a12 = 2 * (x * y - w * z) / norm_quat;
         a13 = 2 * (x * z + w * y) / norm_quat;
         a21 = 2 * (x * y + w * z) / norm_quat;
@@ -105,7 +105,7 @@ Eigen::Matrix3d R_frm_quat_v3(btQuaternion Q_in) {
     }
     else
     {
-        a11 = (w * w + x * x + y * y - z * z) / norm_quat;
+        a11 = (w * w + x * x - y * y - z * z) / norm_quat;
         a12 = 2 * (x * y - w * z) / norm_quat;
         a13 = 2 * (x * z + w * y) / norm_quat;
         a21 = 2 * (x * y + w * z) / norm_quat;
