@@ -200,7 +200,7 @@ public:                                 // Access specifier
             }
             else
             {
-                a11 = (w * w + x * x + y * y - z * z) / norm_quat;
+                a11 = (w * w + x * x - y * y - z * z) / norm_quat;
                 a12 = 2 * (x * y - w * z) / norm_quat;
                 a13 = 2 * (x * z + w * y) / norm_quat;
                 a21 = 2 * (x * y + w * z) / norm_quat;
@@ -245,7 +245,7 @@ public:                                 // Access specifier
             }
             else
             {
-                a11 = (w * w + x * x + y * y - z * z) / norm_quat;
+                a11 = (w * w + x * x - y * y - z * z) / norm_quat;
                 a12 = 2 * (x * y - w * z) / norm_quat;
                 a13 = 2 * (x * z + w * y) / norm_quat;
                 a21 = 2 * (x * y + w * z) / norm_quat;
